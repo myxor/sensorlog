@@ -6,7 +6,6 @@ Additionally it comes with a nice web frontend showing the plotted data:
 
 ![alt text](https://raw.githubusercontent.com/myxor/sensorlog/master/graph.png "Graph with three different sensors")
 
-
 ## Components
 
 It consists out of three parts:
