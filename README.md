@@ -21,13 +21,13 @@ It is able to log these values into a sqlite database or send them to the RESTfu
 
 @todo
 
-Done with https://github.com/expressjs/express
+Built with https://github.com/expressjs/express
 
 ### Frontend (HTML + javascript)
 
 @todo
 
-Done with https://jquery.com/ and https://plot.ly/
+Built with https://github.com/jquery/jquery/ and https://github.com/plotly/plotly.js/
 
 
 
