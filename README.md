@@ -35,5 +35,21 @@ Built with https://github.com/jquery/jquery/ and https://github.com/plotly/plotl
 
 1. checkout this repository
   `git clone https://github.com/myxor/sensorlog.git`
-2. @todo
-3. @todo
+2. copy folder *api* to the machine the RESTful API should be running on
+3. @todo configure API
+4. @todo install nodejs, ...
+5. @todo run API for testing
+5. copy folder *logger* to the machine(s) where the 1wire temperature sensors are connected to (for example your Raspberry Pi(s))
+6. @todo configure logger
+7. @todo install python3 + modules...
+8. @todo copy folder *frontend*
+9. @todo
+
+
+## API as service
+
+@todo service file and starting
+
+## Periodic logging of temperatures
+
+@todo run by crontab
