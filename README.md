@@ -4,7 +4,7 @@ Distributed tool which records and plots temperature values from multiple 1-wire
 
 Additionally it comes with a nice web frontend showing the plotted data:
 
-![alt text](https://raw.githubusercontent.com/myxor/sensorlog/master/graph.png "Graph with three different sensors")
+![alt text](https://raw.githubusercontent.com/myxor/sensorlog/master/res/graph.png "Graph with three different sensors")
 
 
 ## Components
