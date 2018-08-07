@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<!--
+  @author Marco Heiming
+  @date 2018-06-09
+
+  https://github.com/myxor/sensorlog
+-->
+<html lang="de">
+<head>
+  <title>Sensorlog</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <script src="jquery-3.3.1.min.js"></script>
+
+  <!-- Plotly.js -->
+   <script src="plotly-latest.min.js"></script>
+
+   <style>
+   .loader {
+     border: 16px solid #0D47A1;
+     border-radius: 50%;
+     border-top: 16px solid #3498db;
+     width: 300px;
+     height: 300px;
+     position: absolute;
+     left: 50%;
+     margin-left:-150px;
+     top: 50%;
+     margin-top:-150px
+     -webkit-animation: spin 2s linear infinite;
+     animation: spin 2s linear infinite;
+     z-index: 100;
+     background-color: white;
+   }
+
+   @keyframes spin {
+     0% { transform: rotate(0deg); }
+     100% { transform: rotate(360deg); }
+   }
+   </style>
+
+</head>
+<body>
+
+  <div class="loader" id="loader" style="visible: hidden"></div>
+  <div id="tempDiv"></div>
+
+  <script>
+
+  // FILL in URL of your API here:
+  const API_URL = '';
+
+  var minus24h = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
+
+  function load(from_ts, until_ts)
+  {
+
+    var loader = document.getElementById('loader');
+    loader.style.visibility = "visible";
+
+    var params = '';
+    if (from_ts)
+    {
+      params += 'from_ts=' + new Date(from_ts).toISOString();
+    }
+    if (until_ts)
+    {
+      if (params !== '')
+      {
+        params += '&'
+      }
+      params += 'until_ts=' + new Date(until_ts).toISOString();
+    }
+
+    // get current values:
+    var current_values = [];
+
+    $.ajax({
+        url: API_URL  + '/temperatures/current?',
+         dataType: 'json'
+      }).done(function (results_current)
+    {
+      		current_values = results_current;
+
+      		getAllData();
+  	 });
+
+
+     function getCurrentValueForSensor(sensor_id)
+     {
+       var data_row = current_values.filter(function(r) {
+         return r.sensor_id == sensor_id;
+       });
+       return data_row && data_row[0] ? data_row[0].value : "-";
+     }
+
+    function getAllData()
+    {
+      $.ajax({
+          url: API_URL + '/temperatures?' + params,
+           dataType: 'json'
+        }).done(function (results) {
+
+          // @todo make this configurable on API side:
+          var data_rows = [
+            {
+              name: "Wohnzimmer",
+              color: "#0D47A1",
+              sensor_id: "28-051701cd44ff"
+            },
+            {
+              name: "Fenster (Nord)",
+              color: "#f44336",
+              sensor_id: "28-0417c0146eff"
+            },
+            {
+              name: "Balkon",
+              color: "#33691E",
+              sensor_id: "28-0517c155d8ff"
+            },
+            {
+              name: "Test",
+              color: "#000000",
+              sensor_id: ""
+            }
+          ]
+
+          var data = []
+
+          data_rows.forEach(function(row){
+            data.push({
+              sensor_id: row.sensor_id,
+              x: [],
+              y: [],
+              mode: 'lines',
+              name: row.name + " (" + getCurrentValueForSensor(row.sensor_id) + "°C)",
+              marker: {
+                color: row.color,
+                size: 12,
+                line: {
+                  color: 'white',
+                  width: 1
+                }
+              }
+            });
+          });
+
+
+
+          var selectorOptions = {
+              buttons: [{
+                  step: 'hour',
+                  stepmode: 'backward',
+                  count: 1,
+                  label: '1 Stunde'
+              }, {
+                  step: 'hour',
+                  stepmode: 'backward',
+                  count: 6,
+                  label: '6 Stunden'
+              }, {
+                  step: 'day',
+                  stepmode: 'backward',
+                  count: 1,
+                  label: '1 Tag'
+              }, {
+                  step: 'week',
+                  stepmode: 'backward',
+                  count: 1,
+                  label: '1 Woche'
+              }, {
+                  step: 'month',
+                  stepmode: 'backward',
+                  count: 1,
+                  label: '1 Monat'
+              }, {
+                  step: 'all',
+              }],
+          };
+
+          var layout = {
+            title: 'Temperaturen',
+            xaxis: {
+              title: 'Zeit',
+              rangeselector: selectorOptions,
+              type: 'date'
+             },
+             yaxis: {
+               title: '°C',
+               fixedrange: true,
+               type: 'linear'
+             },
+             legend: {
+              x: 0.8,
+              y: 200,
+              traceorder: 'normal',
+              font: {
+                size: 14,
+                color: '#000'
+              }
+            }
+          };
+
+          function pushRecordToData(row)
+          {
+            var d_string = row.datetime;
+            var d = new Date(d_string);
+            var v = parseFloat(row.value);
+
+            // do not show wrong values:
+            if (v > 70)
+            {
+              return false;
+            }
+
+            var data_row = data.filter(function(r) {
+              return r.sensor_id == row.sensor_id;
+            });
+
+            if (!data_row)
+            {
+              data_row = data[data.length -1];
+            }
+            else {
+              data_row = data_row[0];
+            }
+
+            data_row.x.push(d);
+            data_row.y.push(v);
+          }
+
+
+
+          results.forEach(function(row) {
+            pushRecordToData(row);
+          });
+
+
+          // draw graph:
+          var tempDiv = document.getElementById('tempDiv');
+
+          var gd = Plotly.newPlot('tempDiv', data, layout);
+
+          tempDiv.on('plotly_relayout', function(event){
+              if (event)
+              {
+                  var from_ts = event["xaxis.range[0]"];
+                  var until_ts = event["xaxis.range[1]"];
+                  load(from_ts, until_ts);
+              }
+          });
+
+          loader.style.visibility = "hidden";
+        });
+     }
+  }
+
+    load(minus24h.toISOString());
+
+  </script>
+</body>
+</html>
