@@ -53,7 +53,6 @@
 
   function load(from_ts, until_ts)
   {
-
     var loader = document.getElementById('loader');
     loader.style.visibility = "visible";
 
@@ -70,6 +69,27 @@
       }
       params += 'until_ts=' + new Date(until_ts).toISOString();
     }
+
+    var data_rows = [
+    ]
+
+    // get config from API:
+    var config_json = null;
+    $.ajax({
+        url: API_URL  + '/config',
+         dataType: 'json'
+      }).done(function (results_current)
+    {
+          config_json = results_current;
+          if (config_json && config_json.sensors)
+          {
+            config_json.sensors.forEach(function(config_sensor)
+            {
+                data_rows.push(config_sensor);
+            });
+          }
+     });
+
 
     // get current values:
     var current_values = [];
@@ -100,31 +120,7 @@
            dataType: 'json'
         }).done(function (results) {
 
-          // @todo make this configurable on API side:
-          var data_rows = [
-            {
-              name: "Wohnzimmer",
-              color: "#0D47A1",
-              sensor_id: "28-051701cd44ff"
-            },
-            {
-              name: "Fenster (Nord)",
-              color: "#f44336",
-              sensor_id: "28-0417c0146eff"
-            },
-            {
-              name: "Balkon",
-              color: "#33691E",
-              sensor_id: "28-0517c155d8ff"
-            },
-            {
-              name: "Test",
-              color: "#000000",
-              sensor_id: ""
-            }
-          ]
-
-          var data = []
+            var data = []
 
           data_rows.forEach(function(row){
             data.push({
