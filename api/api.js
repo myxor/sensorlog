@@ -113,14 +113,14 @@ restapi.get('/temperatures', function(request, res)
       if (rows.length > config_json.row_count_for_aggregation)
       {
           var select = "SELECT " +
-                "SUBSTR(datetime, 0, 14) AS datetime_day," +
+                "SUBSTR(datetime, 0, 14) AS datetime_hour," + // aggregate to one value per hour
                 "sensor_id, " +
                 "value, " +
                 "ROUND(AVG(value), 1) AS value_avg "+
                 "FROM temperatures";
 
           query = select + " " + where_filter +
-            " GROUP BY datetime_day, sensor_id ORDER BY datetime_day ASC";
+            " GROUP BY datetime_hour, sensor_id ORDER BY datetime_hour ASC";
 
           db.all(query, function(err, rows)
           {
@@ -128,7 +128,7 @@ restapi.get('/temperatures', function(request, res)
             {
               result.push(
                {
-                "datetime" : row.datetime_day + ':00:00',
+                "datetime" : row.datetime_hour + ':00:00',
                 "sensor_id" : row.sensor_id,
                 "value" : row.value_avg
               });
