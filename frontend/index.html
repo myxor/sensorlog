@@ -12,7 +12,7 @@
   <script src="jquery-3.3.1.min.js"></script>
 
   <!-- Plotly.js -->
-   <script src="plotly-latest.min.js"></script>
+   <script src="plotly-1.41.2.min.js"></script>
 
    <style>
    .loader {
@@ -99,7 +99,7 @@
          dataType: 'json'
       }).done(function (results_current)
     {
-      		current_values = results_current;
+      		current_values = results_current["rows"];
 
       		getAllData();
   	 });
@@ -120,7 +120,7 @@
            dataType: 'json'
         }).done(function (results) {
 
-            var data = []
+          var data = []
 
           data_rows.forEach(function(row){
             data.push({
@@ -159,9 +159,9 @@
                   count: 1,
                   label: '24 Stunden'
               }, {
-                  step: 'week',
-                  stepmode: 'todate',
-                  count: 1,
+                  step: 'day',
+                  stepmode: 'backward',
+                  count: 7,
                   label: '1 Woche'
               }, {
                   step: 'month',
@@ -169,11 +169,11 @@
                   count: 1,
                   label: '1 Monat'
               }, {
-		  step: 'year',
-		  stepmode: 'backward',
-		  count: 1,
-		  label: '1 Jahr'
-	      }, {
+        		  step: 'year',
+        		  stepmode: 'backward',
+        		  count: 1,
+        		  label: '1 Jahr'
+    	      }, {
                   step: 'all',
               }],
           };
@@ -183,12 +183,21 @@
             xaxis: {
               title: 'Zeit',
               rangeselector: selectorOptions,
-              type: 'date'
+              type: 'date',
+                showline: true,
+                showticklabels: true,
+                linewidth: 2,
+                autotick: true,
+                tickwidth: 2
              },
              yaxis: {
                title: '°C',
                fixedrange: true,
-               type: 'linear'
+               type: 'linear',
+                showgrid: true,
+                showline: true,
+                zeroline: true,
+                showticklabels: true,
              },
              legend: {
               x: 0.8,
@@ -231,7 +240,7 @@
 
 
 
-          results.forEach(function(row) {
+          results["rows"].forEach(function(row) {
             pushRecordToData(row);
           });
 
@@ -239,12 +248,16 @@
           // draw graph:
           var tempDiv = document.getElementById('tempDiv');
 
-          var gd = Plotly.newPlot('tempDiv', data, layout);
+          var gd = Plotly.newPlot('tempDiv', data, layout, {responsive: true});
 
           tempDiv.on('plotly_relayout', function(event){
               if (event)
               {
                   var from_ts = event["xaxis.range[0]"];
+                  if (!from_ts)
+                  {
+                        from_ts = minus24h.toISOString();
+                  }
                   var until_ts = event["xaxis.range[1]"];
                   load(from_ts, until_ts);
               }
