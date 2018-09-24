@@ -74,10 +74,12 @@ restapi.post('/temperatures', function(request, res)
   }
 });
 
-var result = [];
+var result = {"rows":[]};
 restapi.get('/temperatures', function(request, res)
 {
-   result = [];
+   result = {"rows":[], "min": {}, "max": {}};
+   var min = [];
+   var max = [];
 
    var from_ts = request.query.from_ts;
    if (!from_ts)
@@ -96,12 +98,13 @@ restapi.get('/temperatures', function(request, res)
           "value "+
           "FROM temperatures";
 
-    var where_filter =  "WHERE datetime >= '" +  from_ts +
-                        "' AND datetime <= '" + until_ts + "'" +
-                        " AND value <= 70";
+    var where_filter =  "WHERE datetime >= '" +  from_ts + "'" +
+                        " AND datetime <= '" + until_ts + "'" +
+                        " AND value <= 70 ";
 
     db = new sqlite3.Database(config_json.database.path);
-    var query = select + " " + where_filter;
+    var query = select + " " + where_filter +
+        " ORDER BY datetime ASC";
     db.all(query, function(err, rows)
     {
       if (err)
@@ -126,13 +129,27 @@ restapi.get('/temperatures', function(request, res)
           {
             rows.forEach((row) =>
             {
-              result.push(
+              result["rows"].push(
                {
                 "datetime" : row.datetime_hour + ':00:00',
                 "sensor_id" : row.sensor_id,
                 "value" : row.value_avg
               });
+
+              if (!min[row.sensor_id])
+              {
+                min[row.sensor_id] = Infinity;
+              }
+              min[row.sensor_id] = Math.min(min[row.sensor_id], row.value_avg);
+              if (!max[row.sensor_id])
+              {
+                max[row.sensor_id] = -Infinity;
+              }
+              max[row.sensor_id] = Math.max(max[row.sensor_id], row.value_avg);
             });
+
+            result["min"] = min;
+            result["max"] = max;
 
             res.contentType('application/json');
             res.send(JSON.stringify(result));
@@ -140,10 +157,10 @@ restapi.get('/temperatures', function(request, res)
           });
       }
       else
-      { // not more than config_json.row_count_for_aggregation rows, deliver the actual raw data:
+      { // not more results than config_json.row_count_for_aggregation, let's deliver the actual raw data:
         rows.forEach((row) =>
         {
-          var duplicate = result.find(function(element)
+          var duplicate = result["rows"].find(function(element)
           {
             return (element.datetime == row.datetime &&
               element.sensor_id == row.sensor_id &&
@@ -152,14 +169,28 @@ restapi.get('/temperatures', function(request, res)
 
           if (!duplicate || typeof duplicate == undefined)
           {
-              result.push(
+              result["rows"].push(
                {
                 "datetime" : row.datetime,
                 "sensor_id" : row.sensor_id,
                 "value" : row.value
               });
+
+              if (!min[row.sensor_id])
+              {
+                min[row.sensor_id] = Infinity;
+              }
+              min[row.sensor_id] = Math.min(min[row.sensor_id], row.value);
+              if (!max[row.sensor_id])
+              {
+                max[row.sensor_id] = -Infinity;
+              }
+              max[row.sensor_id] = Math.max(max[row.sensor_id], row.value);
           }
         });
+
+        result["min"] = min;
+        result["max"] = max;
 
         res.contentType('application/json');
         res.send(JSON.stringify(result));
@@ -168,10 +199,10 @@ restapi.get('/temperatures', function(request, res)
     });
 });
 
-var result2 = [];
+var result2 = {"rows":[]};
 restapi.get('/temperatures/current', function(request, res)
 {
-	result2 = [];
+	result2 = {"rows":[]};
 	var query = "SELECT " +
           "datetime, " +
           "sensor_id, " +
@@ -190,7 +221,7 @@ restapi.get('/temperatures/current', function(request, res)
       }
 	    rows.forEach((row) =>
       {
-    			result2.push(
+    			result2["rows"].push(
             {
     					"datetime" : row.datetime,
     					"sensor_id" : row.sensor_id,
