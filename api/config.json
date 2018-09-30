@@ -20,5 +20,6 @@
       "sensor_id": "28-0517c155d8ff"
     }
   ],
-  "row_count_for_aggregation": 10000
+  "row_count_for_aggregation_hours": 10000,
+  "row_count_for_aggregation_days": 30000
 }

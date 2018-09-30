@@ -12,7 +12,7 @@
   <script src="jquery-3.3.1.min.js"></script>
 
   <!-- Plotly.js -->
-   <script src="plotly-1.41.2.min.js"></script>
+  <script src="plotly-1.41.2.min.js"></script>
 
    <style>
    .loader {
@@ -94,6 +94,8 @@
     // get current values:
     var current_values = [];
 
+    var stats_values = [];
+
     $.ajax({
         url: API_URL  + '/temperatures/current?',
          dataType: 'json'
@@ -113,6 +115,14 @@
        return data_row && data_row[0] ? data_row[0].value : "-";
      }
 
+	function getStatValueForSensor(sensor_id, stat)
+	{
+		var stat_row = stats_values.filter(function(r) {
+			return r["sensor_id"] == sensor_id;
+		})
+		return stat_row && stat_row[0] && stat_row[0][stat] ? stat_row[0][stat] : "";
+	}
+
     function getAllData()
     {
       $.ajax({
@@ -122,13 +132,20 @@
 
           var data = []
 
+	  stats_values = results["stats"];
+
+
           data_rows.forEach(function(row){
             data.push({
               sensor_id: row.sensor_id,
               x: [],
               y: [],
               mode: 'lines',
-              name: row.name + " (" + getCurrentValueForSensor(row.sensor_id) + "°C)",
+              name: "<b>" + row.name + ": " + getCurrentValueForSensor(row.sensor_id) + "°C</b> " +
+			"(avg: " + getStatValueForSensor(row.sensor_id, "avg") + ", " +
+			"min: " + getStatValueForSensor(row.sensor_id, "min") + ", " +
+			"max: " + getStatValueForSensor(row.sensor_id, "max") + 
+			")",
               marker: {
                 color: row.color,
                 size: 12,
@@ -145,7 +162,7 @@
           var selectorOptions = {
               buttons: [{
                   step: 'hour',
-                  stepmode: 'todate',
+                  stepmode: 'backward',
                   count: 1,
                   label: '1 Stunde'
               }, {
@@ -154,11 +171,16 @@
                   count: 12,
                   label: '12 Stunden'
               }, {
-                  step: 'day',
+                  step: 'hour',
                   stepmode: 'backward',
-                  count: 1,
+                  count: 24,
                   label: '24 Stunden'
               }, {
+		  step: 'hour',
+		  stepmode: 'backward',
+		  count: 48,
+		  label: '48 Stunden',
+	      }, {
                   step: 'day',
                   stepmode: 'backward',
                   count: 7,
@@ -169,45 +191,48 @@
                   count: 1,
                   label: '1 Monat'
               }, {
-        		  step: 'year',
-        		  stepmode: 'backward',
-        		  count: 1,
-        		  label: '1 Jahr'
-    	      }, {
+		  step: 'year',
+		  stepmode: 'backward',
+		  count: 1,
+		  label: '1 Jahr'
+	      }, {
                   step: 'all',
               }],
           };
 
           var layout = {
-            title: 'Temperaturen',
+//            title: 'Temperaturen',
             xaxis: {
               title: 'Zeit',
               rangeselector: selectorOptions,
               type: 'date',
-                showline: true,
-                showticklabels: true,
-                linewidth: 2,
-                autotick: true,
-                tickwidth: 2
+		showline: true,
+		showticklabels: true,
+		linewidth: 2,
+		autotick: true,
+		tickwidth: 2
              },
              yaxis: {
                title: '°C',
                fixedrange: true,
                type: 'linear',
-                showgrid: true,
-                showline: true,
-                zeroline: true,
-                showticklabels: true,
+		showgrid: true,
+		showline: true,
+		zeroline: true,
+		showticklabels: true,
              },
              legend: {
-              x: 0.8,
-              y: 200,
-              traceorder: 'normal',
+              x: 0.2,
+              y: 1.2,
+		xanchor:"center",
+		yanchor:"bottom",
+//              traceorder: 'normal',
               font: {
                 size: 14,
                 color: '#000'
-              }
-            }
+                }
+              },
+	      autosize: true
           };
 
           function pushRecordToData(row)
@@ -254,12 +279,12 @@
               if (event)
               {
                   var from_ts = event["xaxis.range[0]"];
-                  if (!from_ts)
-                  {
-                        from_ts = minus24h.toISOString();
-                  }
+		  if (!from_ts)
+		  {
+			from_ts = minus24h.toISOString();
+		  }
                   var until_ts = event["xaxis.range[1]"];
-                  load(from_ts, until_ts);
+                  load(from_ts , until_ts);
               }
           });
 

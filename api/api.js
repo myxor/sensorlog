@@ -77,9 +77,11 @@ restapi.post('/temperatures', function(request, res)
 var result = {"rows":[]};
 restapi.get('/temperatures', function(request, res)
 {
-   result = {"rows":[], "min": {}, "max": {}};
+   result = {"rows":[], "stats": []};
    var min = [];
    var max = [];
+   var sum = [];
+   var count = [];
 
    var from_ts = request.query.from_ts;
    if (!from_ts)
@@ -107,31 +109,49 @@ restapi.get('/temperatures', function(request, res)
         " ORDER BY datetime ASC";
     db.all(query, function(err, rows)
     {
+      var use_hour_aggregation = rows.length > config_json.row_count_for_aggregation_hours;
+      var use_day_aggregation = rows.length > config_json.row_count_for_aggregation_days;
       if (err)
       {
         return console.error(err.message);
       }
 
       // if more than config_json.row_count_for_aggregation rows lets aggregate the data:
-      if (rows.length > config_json.row_count_for_aggregation)
+      if (use_hour_aggregation)
       {
-          var select = "SELECT " +
-                "SUBSTR(datetime, 0, 14) AS datetime_hour," + // aggregate to one value per hour
+        var select = "SELECT ";
+
+	if (use_day_aggregation)
+	{
+	  select += "SUBSTR(datetime, 0, 11) AS datetime_agg,"; // aggregate to one value per day
+	}
+	else
+	{
+          select += "SUBSTR(datetime, 0, 14) AS datetime_agg,"; // aggregate to one value per hour
+	}
+
+	 select +=
                 "sensor_id, " +
                 "value, " +
                 "ROUND(AVG(value), 1) AS value_avg "+
                 "FROM temperatures";
 
           query = select + " " + where_filter +
-            " GROUP BY datetime_hour, sensor_id ORDER BY datetime_hour ASC";
+            " GROUP BY datetime_agg, sensor_id ORDER BY datetime_agg ASC";
 
           db.all(query, function(err, rows)
           {
             rows.forEach((row) =>
             {
+	      var datetime = row.datetime_agg + ':00:00';
+	      if (use_day_aggregation)
+	      {
+		datetime = row.datetime_agg + ' 00:00:00';
+              }
+
               result["rows"].push(
                {
-                "datetime" : row.datetime_hour + ':00:00',
+                "datetime" : datetime,
                 "sensor_id" : row.sensor_id,
                 "value" : row.value_avg
               });
@@ -146,10 +166,34 @@ restapi.get('/temperatures', function(request, res)
                 max[row.sensor_id] = -Infinity;
               }
               max[row.sensor_id] = Math.max(max[row.sensor_id], row.value_avg);
+              if (!sum[row.sensor_id])
+              {
+                sum[row.sensor_id] = 0;
+              }
+              sum[row.sensor_id] = sum[row.sensor_id] += row.value_avg;
+              if (!count[row.sensor_id])
+              {
+                count[row.sensor_id] = 0;
+              }
+              count[row.sensor_id]++;
+
             });
 
-            result["min"] = min;
-            result["max"] = max;
+        Object.keys(min).forEach(function(k)
+        {
+                var o = {"sensor_id": k, "min": min[k]};
+                if (max[k])
+                {
+                        o["max"] = max[k];
+                }
+                if (sum[k] && count[k] > 0)
+                {
+                        o["avg"] = Math.round(sum[k] * 1000 / count[k]) / 1000;
+                }
+
+                result["stats"].push(o);
+        });
+
 
             res.contentType('application/json');
             res.send(JSON.stringify(result));
@@ -186,11 +230,33 @@ restapi.get('/temperatures', function(request, res)
                 max[row.sensor_id] = -Infinity;
               }
               max[row.sensor_id] = Math.max(max[row.sensor_id], row.value);
+              if (!sum[row.sensor_id])
+              {
+                sum[row.sensor_id] = 0;
+              }
+              sum[row.sensor_id] = sum[row.sensor_id] += row.value;
+              if (!count[row.sensor_id])
+              {
+                count[row.sensor_id] = 0;
+              }
+              count[row.sensor_id]++;
           }
-        });
+        })
 
-        result["min"] = min;
-        result["max"] = max;
+	Object.keys(min).forEach(function(k)
+	{
+		var o = {"sensor_id": k, "min": min[k]};
+		if (max[k])
+		{
+			o["max"] = max[k];
+		}
+		if (sum[k] && count[k] > 0)
+		{
+			o["avg"] = Math.round(sum[k] * 1000 / count[k]) / 1000;
+		}
+
+		result["stats"].push(o);
+	});
 
         res.contentType('application/json');
         res.send(JSON.stringify(result));
