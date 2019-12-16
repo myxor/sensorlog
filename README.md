@@ -1,8 +1,8 @@
 # sensorlog
 
-Distributed tool which records and plots temperature values from multiple 1-wire sensor across the network or locally.
+Distributed tool which records and plots temperature and humidity values from multiple 1-wire and DHT22 sensors across the network or locally.
 
-Additionally it comes with a nice web frontend showing the plotted data:
+Additionally it comes with a basic web frontend showing the plotted data:
 
 ![alt text](https://raw.githubusercontent.com/myxor/sensorlog/master/res/graph.png "Graph with three different sensors")
 
@@ -50,6 +50,6 @@ Built with https://github.com/jquery/jquery/ and https://github.com/plotly/plotl
 
 @todo service file and starting
 
-## Periodic logging of temperatures
+## Periodic logging of temperatures and humidities
 
 @todo run by crontab
