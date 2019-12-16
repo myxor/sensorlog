@@ -527,7 +527,7 @@ restapi.get('/humidities/current', function(request, res)
           "FROM humidities " +
           "GROUP BY sensor_id " +
           "ORDER BY datetime DESC " +
-          "LIMIT 4";
+          "LIMIT 1";
 
     var db = new sqlite3.Database(config_json.database.path);
     db.all(query, function(err, rows)
