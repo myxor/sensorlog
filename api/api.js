@@ -48,7 +48,6 @@ restapi.get('/config', function(request, res)
 })
 
 
-var db;
 restapi.post('/temperatures', function(request, res)
 {
   if (request.body)
@@ -59,7 +58,7 @@ restapi.post('/temperatures', function(request, res)
         var datetime = new Date(body.datetime).toISOString();
         if (datetime && body.sensor_id.length > 3)
         {
-          db = new sqlite3.Database(config_json.database.path);
+          var db = new sqlite3.Database(config_json.database.path);
           db.run(`INSERT INTO temperatures VALUES (?,?,?)`,
             [datetime, body.sensor_id, body.value], function(err) {
               if (err) {
@@ -73,6 +72,33 @@ restapi.post('/temperatures', function(request, res)
       }
   }
 });
+restapi.post('/humidities', function(request, res)
+{
+  if (request.body)
+  {
+      var body = request.body;
+      if (body.datetime && body.sensor_id && body.value)
+      {
+        var datetime = new Date(body.datetime).toISOString();
+        if (datetime && body.sensor_id.length > 3)
+        {
+          var db = new sqlite3.Database(config_json.database.path);
+          db.run(`INSERT INTO humidities VALUES (?,?,?)`,
+            [datetime, body.sensor_id, body.value], function(err) {
+              if (err) {
+                return console.error(err.message);
+              }
+              res.contentType('application/json');
+              res.send(["OK"]);
+              db.close();
+            });
+        }
+      }
+  }
+});
+
+
+
 
 var result = {"rows":[]};
 restapi.get('/temperatures', function(request, res)
@@ -104,7 +130,7 @@ restapi.get('/temperatures', function(request, res)
                         " AND datetime <= '" + until_ts + "'" +
                         " AND value <= 70 ";
 
-    db = new sqlite3.Database(config_json.database.path);
+    var db = new sqlite3.Database(config_json.database.path);
     var query = select + " " + where_filter +
         " ORDER BY datetime ASC";
     db.all(query, function(err, rows)
@@ -265,6 +291,196 @@ restapi.get('/temperatures', function(request, res)
     });
 });
 
+restapi.get('/humidities', function(request, res)
+{
+   result = {"rows":[], "stats": []};
+   var min = [];
+   var max = [];
+   var sum = [];
+   var count = [];
+
+   var from_ts = request.query.from_ts;
+   if (!from_ts)
+   {
+     from_ts = '1970-01-01T00:00:00';
+   }
+
+   var until_ts = request.query.until_ts;
+   if (!until_ts)
+   {
+     until_ts = '2099-01-01T00:00:00';
+   }
+    var select = "SELECT " +
+          "datetime, " +
+          "sensor_id, " +
+          "value "+
+          "FROM humidities";
+
+    var where_filter =  "WHERE datetime >= '" +  from_ts + "'" +
+                        " AND datetime <= '" + until_ts + "'" +
+                        " AND value < 99.9 ";
+
+    var db = new sqlite3.Database(config_json.database.path);
+    var query = select + " " + where_filter +
+        " ORDER BY datetime ASC";
+    db.all(query, function(err, rows)
+    {
+      var use_hour_aggregation = rows.length > config_json.row_count_for_aggregation_hours;
+      var use_day_aggregation = rows.length > config_json.row_count_for_aggregation_days;
+      if (err)
+      {
+        return console.error(err.message);
+      }
+
+      // if more than config_json.row_count_for_aggregation rows lets aggregate the data:
+      if (use_hour_aggregation)
+      {
+        var select = "SELECT ";
+
+	if (use_day_aggregation)
+	{
+	  select += "SUBSTR(datetime, 0, 11) AS datetime_agg,"; // aggregate to one value per day
+	}
+	else
+	{
+          select += "SUBSTR(datetime, 0, 14) AS datetime_agg,"; // aggregate to one value per hour
+	}
+
+	 select +=
+                "sensor_id, " +
+                "value, " +
+                "ROUND(AVG(value), 1) AS value_avg "+
+                "FROM humidities";
+
+          query = select + " " + where_filter +
+            " GROUP BY datetime_agg, sensor_id ORDER BY datetime_agg ASC";
+
+          db.all(query, function(err, rows)
+          {
+            rows.forEach((row) =>
+            {
+	      var datetime = row.datetime_agg + ':00:00';
+	      if (use_day_aggregation)
+	      {
+		datetime = row.datetime_agg + ' 00:00:00';
+              }
+
+              result["rows"].push(
+               {
+                "datetime" : datetime,
+                "sensor_id" : row.sensor_id,
+                "value" : row.value_avg
+              });
+
+              if (!min[row.sensor_id])
+              {
+                min[row.sensor_id] = Infinity;
+              }
+              min[row.sensor_id] = Math.min(min[row.sensor_id], row.value_avg);
+              if (!max[row.sensor_id])
+              {
+                max[row.sensor_id] = -Infinity;
+              }
+              max[row.sensor_id] = Math.max(max[row.sensor_id], row.value_avg);
+              if (!sum[row.sensor_id])
+              {
+                sum[row.sensor_id] = 0;
+              }
+              sum[row.sensor_id] = sum[row.sensor_id] += row.value_avg;
+              if (!count[row.sensor_id])
+              {
+                count[row.sensor_id] = 0;
+              }
+              count[row.sensor_id]++;
+
+            });
+
+        Object.keys(min).forEach(function(k)
+        {
+                var o = {"sensor_id": k, "min": min[k]};
+                if (max[k])
+                {
+                        o["max"] = max[k];
+                }
+                if (sum[k] && count[k] > 0)
+                {
+                        o["avg"] = Math.round(sum[k] * 1000 / count[k]) / 1000;
+                }
+
+                result["stats"].push(o);
+        });
+
+
+            res.contentType('application/json');
+            res.send(JSON.stringify(result));
+            db.close();
+          });
+      }
+      else
+      { // not more results than config_json.row_count_for_aggregation, let's deliver the actual raw data:
+        rows.forEach((row) =>
+        {
+          var duplicate = result["rows"].find(function(element)
+          {
+            return (element.datetime == row.datetime &&
+              element.sensor_id == row.sensor_id &&
+              element.value == row.value);
+          });
+
+          if (!duplicate || typeof duplicate == undefined)
+          {
+              result["rows"].push(
+               {
+                "datetime" : row.datetime,
+                "sensor_id" : row.sensor_id,
+                "value" : row.value
+              });
+
+              if (!min[row.sensor_id])
+              {
+                min[row.sensor_id] = Infinity;
+              }
+              min[row.sensor_id] = Math.min(min[row.sensor_id], row.value);
+              if (!max[row.sensor_id])
+              {
+                max[row.sensor_id] = -Infinity;
+              }
+              max[row.sensor_id] = Math.max(max[row.sensor_id], row.value);
+              if (!sum[row.sensor_id])
+              {
+                sum[row.sensor_id] = 0;
+              }
+              sum[row.sensor_id] = sum[row.sensor_id] += row.value;
+              if (!count[row.sensor_id])
+              {
+                count[row.sensor_id] = 0;
+              }
+              count[row.sensor_id]++;
+          }
+        })
+
+	Object.keys(min).forEach(function(k)
+	{
+		var o = {"sensor_id": k, "min": min[k]};
+		if (max[k])
+		{
+			o["max"] = max[k];
+		}
+		if (sum[k] && count[k] > 0)
+		{
+			o["avg"] = Math.round(sum[k] * 1000 / count[k]) / 1000;
+		}
+
+		result["stats"].push(o);
+	});
+
+        res.contentType('application/json');
+        res.send(JSON.stringify(result));
+        db.close();
+      }
+    });
+});
+
 var result2 = {"rows":[]};
 restapi.get('/temperatures/current', function(request, res)
 {
@@ -276,9 +492,9 @@ restapi.get('/temperatures/current', function(request, res)
           "FROM temperatures " +
           "GROUP BY sensor_id " +
           "ORDER BY datetime DESC " +
-          "LIMIT 3";
+          "LIMIT 4";
 
-    db = new sqlite3.Database(config_json.database.path);
+    var db = new sqlite3.Database(config_json.database.path);
     db.all(query, function(err, rows)
     {
       if (err)
@@ -299,6 +515,45 @@ restapi.get('/temperatures/current', function(request, res)
         res.send(JSON.stringify(result2));
 	});
 })
+
+result3 = {"rows":[]};
+restapi.get('/humidities/current', function(request, res)
+{
+	result3 = {"rows":[]};
+	var query = "SELECT " +
+          "datetime, " +
+          "sensor_id, " +
+          "value " +
+          "FROM humidities " +
+          "GROUP BY sensor_id " +
+          "ORDER BY datetime DESC " +
+          "LIMIT 4";
+
+    var db = new sqlite3.Database(config_json.database.path);
+    db.all(query, function(err, rows)
+    {
+      if (err)
+      {
+        return console.error(err.message);
+      }
+	    rows.forEach((row) =>
+      {
+    			result3["rows"].push(
+            {
+    					"datetime" : row.datetime,
+    					"sensor_id" : row.sensor_id,
+    					"value" : row.value
+    				});
+        });
+
+        res.contentType('application/json');
+        res.send(JSON.stringify(result3));
+	});
+})
+
+
+
+// ---------------------
 
 function startServer()
 {
