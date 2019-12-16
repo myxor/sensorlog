@@ -287,7 +287,7 @@
           // draw graph:
           var tempDiv = document.getElementById('tempDiv');
 
-          var gd = Plotly.newPlot('tempDiv', data, layout, {responsive: true});
+          var gd = Plotly.newPlot('tempDiv', data, layout, {responsive: true, locale: 'de'});
 
           tempDiv.on('plotly_relayout', function(event){
               if (event)
@@ -540,7 +540,7 @@
           // draw graph:
           var humiDiv = document.getElementById('humiDiv');
 
-          var gd = Plotly.newPlot('humiDiv', data, layout, {responsive: true});
+          var gd = Plotly.newPlot('humiDiv', data, layout, {responsive: true, locale: 'de'});
 
           humiDiv.on('plotly_relayout', function(event){
               if (event)
