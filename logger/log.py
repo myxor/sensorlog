@@ -13,6 +13,7 @@ import requests
 import json
 import os.path
 import configparser
+import importlib
 
 
 config = configparser.ConfigParser()
@@ -37,6 +38,9 @@ if (api_port == ""):
     print("Error: API.PORT not set in config.ini")
     exit()
 
+if (len(sys.argv) < 2):
+    print("Usage: python3 log.py (sqlite|restful)")
+    exit()
 
 type = sys.argv[1] # "sqlite" or "restful"
 
@@ -44,54 +48,106 @@ if type == "sqlite":
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS temperatures(datetime text, sensor_id text, value real)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS humidities(datetime text, sensor_id text, value real)''')
 elif type == "restful":
-    url = "http://" + api_host + ":" +  api_port + "/temperatures"
+    url = "http://" + api_host + ":" +  api_port + "/"
 else:
     print("Usage: python3 log.py (sqlite|restful)")
     exit()
 
+	
+def get1wire():
+	# get all w1 slaves:
+	path_to_w1_master = '/sys/devices/w1_bus_master1/w1_master_slaves'
+	if os.path.isfile(path_to_w1_master):
+		file = open(path_to_w1_master)
+		w1_slaves = file.readlines()
+		file.close()
 
+		# iterate over all found slaves:
+		for line in w1_slaves:
+			w1_slave = line.split("\n")[0]
+			path_to_w1_slave = '/sys/bus/w1/devices/' + str(w1_slave) + '/w1_slave'
+			if os.path.isfile(path_to_w1_slave):
+				file = open(path_to_w1_slave)
+				filecontent = file.read()
+				file.close()
 
-# get all w1 slaves:
-path_to_w1_master = '/sys/devices/w1_bus_master1/w1_master_slaves'
-if os.path.isfile(path_to_w1_master):
-    file = open(path_to_w1_master)
-    w1_slaves = file.readlines()
-    file.close()
+				stringvalue = filecontent.split("\n")[1].split(" ")[9]
+				temperature = float(stringvalue[2:]) / 1000
 
-	# iterate over all found slaves:
-    for line in w1_slaves:
-        w1_slave = line.split("\n")[0]
-        path_to_w1_slave = '/sys/bus/w1/devices/' + str(w1_slave) + '/w1_slave'
-        if os.path.isfile(path_to_w1_slave):
-            file = open(path_to_w1_slave)
-            filecontent = file.read()
-            file.close()
+				print(str(w1_slave) + ': ' + str(temperature))
 
-            stringvalue = filecontent.split("\n")[1].split(" ")[9]
-            temperature = float(stringvalue[2:]) / 1000
-
-            print(str(w1_slave) + ': ' + str(temperature))
-
-            # do not log values > 70 °C:
-            if temperature <= 70:
-                now = datetime.now(timezone.utc)
-
+				# do not log values > 70 °C:
+				if temperature <= 70:
+					logTemp(str(w1_slave), str(temperature))
+	else:
+		print("No 1wire support")
 				
-                if type == "sqlite":
-					# write into db
-                    c.execute("INSERT INTO temperatures VALUES ('" +  now.isoformat() + "','" + str(w1_slave) + "', " + str(temperature) + ")")
-                    print("saved to sqlite")
-
-                if type == "restful":
-					# send to RESTful API:
-                    data = {"datetime" : now.isoformat(), "sensor_id" :  str(w1_slave), "value" : str(temperature)}
-                    data_json = json.dumps(data)
-                    headers = {'Content-type': 'application/json'}
-                    response = requests.post(url, data=data_json, headers=headers)
-                    print("http response", response)
 
 
+def logTemp(sensor_id, temperature):
+	print("logTemp(" + sensor_id + ", " + temperature + ")")
+	now = datetime.now(timezone.utc)
+	
+	if type == "sqlite":
+		# write into DB:
+		c.execute("INSERT INTO temperatures VALUES ('" +  now.isoformat() + "','" + str(sensor_id) + "', " + str(temperature) + ")")
+		print("saved to sqlite")
+
+	if type == "restful":
+		# send to RESTful API:
+		data = {"datetime" : now.isoformat(), "sensor_id" :  str(sensor_id), "value" : str(temperature)}
+		data_json = json.dumps(data)
+		headers = {'Content-type': 'application/json'}
+		full_url = url + "temperatures"
+		print("Sending to " + full_url + "...")
+		response = requests.post(full_url, data=data_json, headers=headers)
+		print("HTTP response", response)
+		
+def logHumi(sensor_id, humidity):
+	print("logHumi(" + sensor_id + ", " + humidity + ")")
+	now = datetime.now(timezone.utc)
+	
+	if type == "sqlite":
+		# write into DB:
+		c.execute("INSERT INTO humidities VALUES ('" +  now.isoformat() + "','" + str(sensor_id) + "', " + str(humidity) + ")")
+		print("saved to sqlite")
+
+	if type == "restful":
+		# send to RESTful API:
+		data = {"datetime" : now.isoformat(), "sensor_id" :  str(sensor_id), "value" : str(humidity)}
+		data_json = json.dumps(data)
+		headers = {'Content-type': 'application/json'}
+		full_url = url + "humidities"
+		print("Sending to " + full_url + "...")
+		response = requests.post(full_url, data=data_json, headers=headers)
+		print("HTTP response", response)
+		
+def getDHT():			
+	import Adafruit_DHT					
+	sensor = Adafruit_DHT.DHT22
+	pin = 4
+	humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)		
+	print("Humidity: " + str(humidity) + "%, temperature: " + str(temperature) + "°C")
+	sensor_id = "DHT" + str(sensor) + str(pin)
+	logTemp(sensor_id, str(round(temperature,3)))
+	logHumi(sensor_id, str(round(humidity,3)))
+					
+					
+get1wire()
+
+# Look for DHT support
+from importlib import util
+dht = importlib.util.find_spec("Adafruit_DHT")
+dht_supported = dht is not None
+if (dht_supported):
+	getDHT()
+else:
+	print("No DHT support")
+					
+					
+# finalize:		
 if type == "sqlite":
     conn.commit()
     conn.close()

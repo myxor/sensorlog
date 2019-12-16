@@ -1,0 +1,25 @@
+{
+  "port": 3000,
+  "database": {
+    "path": "~/sensorlogger/data.db"
+  },
+  "sensors": [
+    {
+      "name": "Wohnzimmer",
+      "color": "#0D47A1",
+      "sensor_id": "28-0123456ABCDEFA"
+    },
+    {
+      "name": "Fenster",
+      "color": "#f44336",
+      "sensor_id": "28-0123456ABCDEFB"
+    },
+    {
+      "name": "Balkon",
+      "color": "#33691E",
+      "sensor_id": "28-0123456ABCDEFC"
+    }
+  ],
+  "row_count_for_aggregation_hours": 10000,
+  "row_count_for_aggregation_days": 30000
+}
