@@ -37,7 +37,6 @@ except KeyError:
 if db_path == "":
     print("Error: DB.PATH not set in config.ini")
     exit()
-
 if api_host == "":
     print("Error: API.HOST not set in config.ini")
     exit()
@@ -101,18 +100,18 @@ def get1wire():
 
 def insert_record_into_db(table, values):
     db_handle.execute("INSERT INTO " + table + " VALUES (?,?,?)", values)
-    print("Inserted into sqlite table %s" % table)
+    print("Inserted into sqlite table '%s'" % table)
 
 
 def select_records_from_db(table):
     e = db_handle.execute("SELECT * FROM " + table + " ORDER BY datetime ASC LIMIT 10")
-    print("Selected %d records in local db" % e.rowcount)
+    print("Selected %d records from table '%s'" % (e.rowcount, table))
     return db_handle.fetchmany()
 
 
 def delete_records_from_db(table, values):
     e = db_handle.execute("DELETE FROM " + table + " WHERE datetime=? AND sensor_id=? AND value=?", values)
-    print("Deleted %d records from table %s " % (e.rowcount, table))
+    print("Deleted %d records from table '%s' " % (e.rowcount, table))
 
 
 def send_to_rest(path, t):
@@ -125,7 +124,7 @@ def send_to_rest(path, t):
 
         headers = {'Content-type': 'application/json'}
 
-        response = requests.post(full_url, data=data_json, headers=headers)
+        response = requests.post(full_url, data=data_json, headers=headers, timeout=10)
         print("HTTP response", response)
 
         # look for cached entries which we can deliver now:
