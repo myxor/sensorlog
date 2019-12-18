@@ -66,7 +66,7 @@ restapi.post('/temperatures', function(request, res)
 
           if (body.value >= temp_min_value && body.value <= temp_max_value)
           {
-            var sensor_id = body.sensor_id.replace("/'/g","")
+            var sensor_id = body.sensor_id.replace(/'/g,"")
 
             var db = new sqlite3.Database(config_json.database.path);
             db.run(`INSERT INTO temperatures VALUES (?,?,?)`,
@@ -97,7 +97,7 @@ restapi.post('/humidities', function(request, res)
         var datetime = new Date(body.datetime).toISOString();
         if (datetime)
         {
-          var sensor_id = body.sensor_id.replace("/'/g","")
+          var sensor_id = body.sensor_id.replace(/'/g,"")
 
           var db = new sqlite3.Database(config_json.database.path);
           db.run(`INSERT INTO humidities VALUES (?,?,?)`,
