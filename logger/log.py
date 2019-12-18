@@ -99,8 +99,12 @@ def get1wire():
 
 
 def insert_record_into_db(table, values):
-    db_handle.execute("INSERT INTO " + table + " (datetime, sensor_id, value) VALUES (?,?,?)", (values))
-    print("Inserted into sqlite table '%s' with rowid=%d" % (table, db_handle.lastrowid))
+    try:
+        db_handle.execute("INSERT INTO " + table + " (datetime, sensor_id, value) VALUES (?,?,?)", values)
+        db_connection.commit()
+        print("Inserted into sqlite table '%s' with rowid=%d" % (table, db_handle.lastrowid))
+    except Exception as e:
+        print(e)
 
 
 def select_records_from_db(table):
@@ -111,8 +115,12 @@ def select_records_from_db(table):
 
 
 def delete_records_from_db(table, values):
-    e = db_handle.execute("DELETE FROM " + table + " WHERE datetime=? AND sensor_id=? AND value=?", values)
-    print("Deleted %d records from table '%s' " % (e.rowcount, table))
+    try:
+        e = db_handle.execute("DELETE FROM " + table + " WHERE datetime=? AND sensor_id=? AND value=?", values)
+        db_connection.commit()
+        print("Deleted %d records from table '%s' " % (e.rowcount, table))
+    except Exception as e:
+        print(e)
 
 
 def send_to_rest(path, t):
