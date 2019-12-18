@@ -36,6 +36,9 @@ restapi.use(function(req, res, next)
 {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+  res.header('Expires', '-1');
+  res.header('Pragma', 'no-cache');
   next();
 });
 restapi.use(express.json());
@@ -120,6 +123,9 @@ restapi.get('/temperatures', function(request, res)
    {
      until_ts = '2099-01-01T00:00:00';
    }
+
+   var temp_max_value = config_json.temp_max_value;
+
     var select = "SELECT " +
           "datetime, " +
           "sensor_id, " +
@@ -128,7 +134,7 @@ restapi.get('/temperatures', function(request, res)
 
     var where_filter =  "WHERE datetime >= '" +  from_ts + "'" +
                         " AND datetime <= '" + until_ts + "'" +
-                        " AND value <= 70 ";
+                        " AND value <=  " + temp_max_value;
 
     var db = new sqlite3.Database(config_json.database.path);
     var query = select + " " + where_filter +

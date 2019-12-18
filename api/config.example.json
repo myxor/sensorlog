@@ -7,19 +7,23 @@
     {
       "name": "Wohnzimmer",
       "color": "#0D47A1",
-      "sensor_id": "28-0123456ABCDEFA"
-    },
-    {
-      "name": "Fenster",
-      "color": "#f44336",
-      "sensor_id": "28-0123456ABCDEFB"
+      "sensor_id": "28-0123456ABCDEFA",
+      "type": "temperature"
     },
     {
       "name": "Balkon",
+      "color": "#f44336",
+      "sensor_id": "28-0123456ABCDEFC",
+      "type": "temperature"
+    },
+    {
+      "name": "Badezimmer",
       "color": "#33691E",
-      "sensor_id": "28-0123456ABCDEFC"
+      "sensor_id": "DHT224",
+      "type": "temperature, humidity"
     }
   ],
   "row_count_for_aggregation_hours": 10000,
-  "row_count_for_aggregation_days": 30000
+  "row_count_for_aggregation_days": 30000,
+  "temp_max_value": 55
 }

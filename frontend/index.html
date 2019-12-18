@@ -89,7 +89,7 @@
           {
             config_json.sensors.forEach(function(config_sensor)
             {
-				if (config_sensor.type == "temperature")
+        if (config_sensor.type.indexOf("temperature") > -1)
 				{
 					data_rows.push(config_sensor);
 				}
@@ -347,7 +347,7 @@
           {
             config_json.sensors.forEach(function(config_sensor)
             {
-				if (config_sensor.type == "temperature")
+				if (config_sensor.type.indexOf("humidity") > -1)
 				{
 					data_rows.push(config_sensor);
 				}
