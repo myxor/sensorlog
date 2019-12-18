@@ -169,14 +169,14 @@ def log_value(table, t):
 def log_temperature(sensor_id, temperature):
     print("log_temperature(" + sensor_id + ", " + str(temperature) + ")")
     now = datetime.now(timezone.utc)
-    t = (now.isoformat(), "'" + str(sensor_id) + "'", str(temperature))
+    t = (now.isoformat(), str(sensor_id), str(temperature))
     log_value("temperatures", t)
 
 
 def log_humidity(sensor_id, humidity):
     print("log_humidity(" + sensor_id + ", " + humidity + ")")
     now = datetime.now(timezone.utc)
-    t = (now.isoformat(), "'" + str(sensor_id) + "'", str(humidity),)
+    t = (now.isoformat(), str(sensor_id), str(humidity),)
     log_value("humidities", t)
 
 
