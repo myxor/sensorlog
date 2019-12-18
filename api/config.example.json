@@ -25,5 +25,6 @@
   ],
   "row_count_for_aggregation_hours": 10000,
   "row_count_for_aggregation_days": 30000,
+  "temp_min_value": -30,
   "temp_max_value": 55
 }

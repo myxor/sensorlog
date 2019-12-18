@@ -124,6 +124,7 @@ restapi.get('/temperatures', function(request, res)
      until_ts = '2099-01-01T00:00:00';
    }
 
+   var temp_min_value = config_json.temp_min_value;
    var temp_max_value = config_json.temp_max_value;
 
     var select = "SELECT " +
@@ -134,11 +135,11 @@ restapi.get('/temperatures', function(request, res)
 
     var where_filter =  "WHERE datetime >= '" +  from_ts + "'" +
                         " AND datetime <= '" + until_ts + "'" +
+                        " AND value >=  " + temp_min_value + " " +
                         " AND value <=  " + temp_max_value;
+    var query = select + " " + where_filter + " ORDER BY datetime ASC";
 
     var db = new sqlite3.Database(config_json.database.path);
-    var query = select + " " + where_filter +
-        " ORDER BY datetime ASC";
     db.all(query, function(err, rows)
     {
       var use_hour_aggregation = rows.length > config_json.row_count_for_aggregation_hours;
