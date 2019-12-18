@@ -131,10 +131,10 @@ def getDHT():
 	humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
 	print("Humidity: " + str(humidity) + "%, temperature: " + str(temperature) + "°C")
 	sensor_id = "DHT" + str(sensor) + str(pin)
-    if (humidity is not None):
-        logHumi(sensor_id, str(round(humidity,3)))
-    if (temperature is not None):
-	    logTemp(sensor_id, str(round(temperature,3)))
+    	if (humidity is not None):
+        	logHumi(sensor_id, str(round(humidity,3)))
+    	if (temperature is not None):
+		logTemp(sensor_id, str(round(temperature,3)))
 
 
 
