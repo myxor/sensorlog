@@ -98,48 +98,71 @@ def get1wire():
         print("No 1wire support")
 
 
-def send_to_rest(full_url, data_json, headers):
-    print("Sending to " + full_url + "...")
-    response = requests.post(full_url, data=data_json, headers=headers)
-    print("HTTP response", response)
+def insert_record_into_db(table, values):
+    db_handle.execute("INSERT INTO " + table + " VALUES (?,?,?)", values)
+    print("Inserted into sqlite table %s" % table)
+
+
+def select_records_from_db(table):
+    e = db_handle.execute("SELECT * FROM " + table + " ORDER BY datetime ASC LIMIT 10")
+    print("Selected %d records in local db" % e.rowcount)
+    return db_handle.fetchmany()
+
+
+def delete_records_from_db(table, values):
+    e = db_handle.execute("DELETE FROM " + table + " WHERE datetime=? AND sensor_id=? AND value=?", values)
+    print("Deleted %d records from table %s " % (e.rowcount, table))
+
+
+def send_to_rest(path, t):
+    try:
+        full_url = url + "" + path
+        print("Sending to " + full_url + "...")
+
+        data = {"datetime": t[0], "sensor_id": t[1], "value": t[2]}
+        data_json = json.dumps(data)
+
+        headers = {'Content-type': 'application/json'}
+
+        response = requests.post(full_url, data=data_json, headers=headers)
+        print("HTTP response", response)
+
+        # look for cached entries which we can deliver now:
+        records = select_records_from_db(path)
+        if records is not None and len(records) > 0:
+            for r in records:
+                if send_to_rest(path, r):
+                    delete_records_from_db(path, r)
+
+        return True
+
+    except requests.exceptions.RequestException as e:
+        insert_record_into_db(path, t)
+        return False
+
+
+def log_value(table, t):
+    if log_type == "sqlite":
+        # write into DB:
+        insert_record_into_db(table, t)
+
+    if log_type == "restful":
+        # send to REST API:
+        send_to_rest(table, t)
 
 
 def log_temperature(sensor_id, temperature):
     print("log_temperature(" + sensor_id + ", " + str(temperature) + ")")
     now = datetime.now(timezone.utc)
-
-    if log_type == "sqlite":
-        # write into DB:
-        t = ("'" + now.isoformat() + "'", "'" + str(sensor_id) + "'", str(temperature), )
-        db_handle.execute("INSERT INTO temperatures VALUES (?,?,?)", t)
-        print("saved to sqlite")
-
-    if log_type == "restful":
-        # send to RESTful API:
-        data = {"datetime": now.isoformat(), "sensor_id": str(sensor_id), "value": str(temperature)}
-        data_json = json.dumps(data)
-        headers = {'Content-type': 'application/json'}
-        full_url = url + "temperatures"
-        send_to_rest(full_url, data_json, headers)
+    t = ("'" + now.isoformat() + "'", "'" + str(sensor_id) + "'", str(temperature))
+    log_value("temperatures", t)
 
 
 def log_humidity(sensor_id, humidity):
     print("log_humidity(" + sensor_id + ", " + humidity + ")")
     now = datetime.now(timezone.utc)
-
-    if log_type == "sqlite":
-        # write into DB:
-        t = ("'" + now.isoformat() + "'", "'" + str(sensor_id) + "'", str(humidity),)
-        db_handle.execute("INSERT INTO humidities VALUES (?,?,?)", t)
-        print("saved to sqlite")
-
-    if log_type == "restful":
-        # send to RESTful API:
-        data = {"datetime": now.isoformat(), "sensor_id": str(sensor_id), "value": str(humidity)}
-        data_json = json.dumps(data)
-        headers = {'Content-type': 'application/json'}
-        full_url = url + "humidities"
-        send_to_rest(full_url, data_json, headers)
+    t = ("'" + now.isoformat() + "'", "'" + str(sensor_id) + "'", str(humidity),)
+    log_value("humidities", t)
 
 
 def get_dht22_values():
@@ -168,5 +191,3 @@ if log_type == "sqlite":
     if db_connection:
         db_connection.commit()
         db_connection.close()
-
-
