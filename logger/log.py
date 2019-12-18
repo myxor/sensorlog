@@ -53,7 +53,7 @@ db_connection = sqlite3.connect(db_path)
 db_handle = db_connection.cursor()
 
 
-def create_db():
+def create_db_tables():
     global db_connection, db_handle
     db_handle.execute('''CREATE TABLE IF NOT EXISTS temperatures(datetime text, sensor_id text, value real)''')
     db_handle.execute('''CREATE TABLE IF NOT EXISTS humidities(datetime text, sensor_id text, value real)''')
@@ -62,8 +62,9 @@ def create_db():
 log_type = sys.argv[1]  # "sqlite" or "restful"
 
 if log_type == "sqlite":
-    create_db()
+    create_db_tables()
 elif log_type == "restful":
+    create_db_tables()
     url = "http://" + api_host + ":" + api_port + "/"
 else:
     print("Usage: python3 log.py (sqlite|restful)")
@@ -154,14 +155,14 @@ def log_value(table, t):
 def log_temperature(sensor_id, temperature):
     print("log_temperature(" + sensor_id + ", " + str(temperature) + ")")
     now = datetime.now(timezone.utc)
-    t = ("'" + now.isoformat() + "'", "'" + str(sensor_id) + "'", str(temperature))
+    t = (now.isoformat(), "'" + str(sensor_id) + "'", str(temperature))
     log_value("temperatures", t)
 
 
 def log_humidity(sensor_id, humidity):
     print("log_humidity(" + sensor_id + ", " + humidity + ")")
     now = datetime.now(timezone.utc)
-    t = ("'" + now.isoformat() + "'", "'" + str(sensor_id) + "'", str(humidity),)
+    t = (now.isoformat(), "'" + str(sensor_id) + "'", str(humidity),)
     log_value("humidities", t)
 
 
