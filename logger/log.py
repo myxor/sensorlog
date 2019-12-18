@@ -199,8 +199,6 @@ if dht is not None:
 else:
     print("No DHT support")
 
-log_temperature("bla", 1)
-
 # finalize:
 if log_type == "sqlite":
     if db_connection:
