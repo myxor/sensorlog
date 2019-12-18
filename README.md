@@ -13,22 +13,27 @@ It consists out of three parts:
 
 ### Logger (python3)
 
-This script does the actual recording of the temperature and humidity values.
+This script does the actual reading of the temperature and humidity values from the supported sensors.
 It will scan all 1wire slaves and extract the temperature from DS18B20 sensors (maybe other sensors will work as well).
 It will look for DHT22 sensors as well and retrieve temperature and humitidy values from them.
-It is able to log these values into a sqlite database or send them to the RESTful API.
+Depending on the configuration it is able to log these values into a sqlite database or send them to the RESTful API.
+
+When sending to the RESTful API is not possible (e.g. in case of no network connection or API down) the records will be cached locally in a sqlite database and sent when API is reachable again.
+
+
+For accessing DHT22 sensors we are using [Adafruit_Python_DHT](https://github.com/adafruit/Adafruit_Python_DHT).
 
 ### RESTful API (nodejs)
 
 @todo
 
-Built with https://github.com/expressjs/express
+Built with [expressjs](https://github.com/expressjs/express)
 
 ### Frontend (HTML + javascript)
 
 @todo
 
-Built with https://github.com/jquery/jquery/ and https://github.com/plotly/plotly.js/
+Built with [jquery](https://github.com/jquery/jquery/) and [plotly.js](https://github.com/plotly/plotly.js/)
 
 
 
@@ -46,9 +51,40 @@ Built with https://github.com/jquery/jquery/ and https://github.com/plotly/plotl
 9. @todo
 
 
-## API as service
+## API as systemd service
 
-@todo systemd service file and starting
+If you want the RESTful API run as a systemd service you can do the following:
+
+```sudo nano /etc/systemd/system/sensorlog-api.service```
+
+then insert the following:
+
+```
+[Unit]
+Description=Sensorlog RESTful API
+
+[Service]
+ExecStart=/usr/bin/node /home/$user/sensorlog/api/api.js
+User=$user
+TimeoutSec=30
+
+[Install]
+WantedBy=multi-user.target
+```
+
+replace $user with the username the service should run as.
+
+After you saved the file you can enable and start the service with:
+
+```
+sudo systemctl daemon-reload 
+
+sudo systemctl enable sensorlog-api
+
+sudo systemctl start sensorlog-api
+
+```
+
 
 ## Periodic logging of temperatures and humidities
 
