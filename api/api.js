@@ -505,6 +505,9 @@ restapi.get('/humidities', function(request, res)
 var result2 = {"rows":[]};
 restapi.get('/temperatures/current', function(request, res)
 {
+    var db = new sqlite3.Database(config_json.database.path);
+	result2 = {"rows":[]};
+
     var query_sensors = "SELECT sensor_id FROM temperatures GROUP BY sensor_id";
     db.all(query_sensors, function(err_sensors, rows_sensors)
     {
