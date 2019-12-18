@@ -23,15 +23,11 @@ When sending to the RESTful API is not possible (e.g. in case of no network conn
 
 For accessing DHT22 sensors we are using [Adafruit_Python_DHT](https://github.com/adafruit/Adafruit_Python_DHT).
 
-### RESTful API (nodejs)
+### RESTful API
 
-@todo
-
-Built with [expressjs](https://github.com/expressjs/express)
+Built with [nodejs](https://github.com/nodejs/node) and [expressjs](https://github.com/expressjs/express)
 
 ### Frontend (HTML + javascript)
-
-@todo
 
 Built with [jquery](https://github.com/jquery/jquery/) and [plotly.js](https://github.com/plotly/plotly.js/)
 
@@ -39,19 +35,31 @@ Built with [jquery](https://github.com/jquery/jquery/) and [plotly.js](https://g
 
 ## Get it running
 
+### On the server (where the RESTful API and frontend should be running)
+
 1. checkout this repository
   `git clone https://github.com/myxor/sensorlog.git`
-2. copy folder *api* to the machine the RESTful API should be running on
-3. @todo configure API  (rename example config first)
-4. @todo install nodejs, ...
-5. @todo run API 
-5. copy folder *logger* to the machine(s) where the 1wire temperature sensors are connected to (for example your Raspberry Pi(s))
-6. @todo configure logger (rename example config first)
-7. @todo install python3 + modules...
-9. @todo
+2. configure api (in the `api` folder):
+    - copy `config.example.json` file to `config.json`
+    - open the file and adjust the values in the sensors section to your wishes
+    - you need the sensor_ids from your 1wire sensors
+    - remove or add sensors here as you need
+    - give them names :)
+3. install node.js
+4. run `npm install`
+5. start api by running `node api.js`
+
+### On the client (where the sensors are attached and the logger should be running)
+
+1. configure logger (in the `logger` folder):
+    - copy `config.example.ini` file to `config.ini`
+    - open the file and replace the HOST and PORT values with the one from the machine your RESTful API is running on
+2. Install python3.6+
+3. (optional) if you want to use DHT22 sensors you need to install the Adafruit_Python_DHT module. See: [Adafruit_Python_DHT#install-with-pip](https://github.com/adafruit/Adafruit_Python_DHT#install-with-pip)
+4. Run the logger by executing `python3 log.py sqlite` or `python3 log.py restful`
 
 
-## API as systemd service
+## Run the RESTful API as systemd service
 
 If you want the RESTful API run as a systemd service you can do the following:
 
