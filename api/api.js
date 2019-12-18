@@ -505,70 +505,91 @@ restapi.get('/humidities', function(request, res)
 var result2 = {"rows":[]};
 restapi.get('/temperatures/current', function(request, res)
 {
-	result2 = {"rows":[]};
-	var query = "SELECT " +
-          "datetime, " +
-          "sensor_id, " +
-          "value " +
-          "FROM temperatures " +
-          "GROUP BY sensor_id " +
-          "ORDER BY datetime DESC " +
-          "LIMIT 4";
-
-    var db = new sqlite3.Database(config_json.database.path);
-    db.all(query, function(err, rows)
+    var query_sensors = "SELECT sensor_id FROM temperatures GROUP BY sensor_id";
+    db.all(query_sensors, function(err_sensors, rows_sensors)
     {
-      if (err)
+      if (err_sensors)
       {
-        return console.error(err.message);
+        return console.error(err_sensors.message);
       }
-	    rows.forEach((row) =>
+	    rows_sensors.forEach((row_sensor) =>
       {
-    			result2["rows"].push(
-            {
-    					"datetime" : row.datetime,
-    					"sensor_id" : row.sensor_id,
-    					"value" : row.value
-    				});
-        });
+            query = "SELECT " +
+                      "datetime, " +
+                      "sensor_id, " +
+                      "value " +
+                      "FROM temperatures " +
+                      "WHERE sensor_id = '" + row_sensor.sensor_id + "'" +
+                      "ORDER BY datetime DESC " +
+                      "LIMIT 1";
 
-        res.contentType('application/json');
-        res.send(JSON.stringify(result2));
+               db.all(query, function(err, rows)
+                {
+                  if (err)
+                  {
+                    return console.error(err.message);
+                  }
+                    rows.forEach((row) =>
+                  {
+                            result2["rows"].push(
+                        {
+                                    "datetime" : row.datetime,
+                                    "sensor_id" : row.sensor_id,
+                                    "value" : row.value
+                                });
+                    });
+
+                    res.contentType('application/json');
+                    res.send(JSON.stringify(result3));
+                });
+        });
 	});
 })
 
 result3 = {"rows":[]};
 restapi.get('/humidities/current', function(request, res)
 {
+	var db = new sqlite3.Database(config_json.database.path);
 	result3 = {"rows":[]};
-	var query = "SELECT " +
-          "datetime, " +
-          "sensor_id, " +
-          "value " +
-          "FROM humidities " +
-          "GROUP BY sensor_id " +
-          "ORDER BY datetime DESC " +
-          "LIMIT 1";
 
-    var db = new sqlite3.Database(config_json.database.path);
-    db.all(query, function(err, rows)
+	var query_sensors = "SELECT sensor_id FROM humidities GROUP BY sensor_id";
+    db.all(query_sensors, function(err_sensors, rows_sensors)
     {
-      if (err)
+      if (err_sensors)
       {
-        return console.error(err.message);
+        return console.error(err_sensors.message);
       }
-	    rows.forEach((row) =>
+	    rows_sensors.forEach((row_sensor) =>
       {
-    			result3["rows"].push(
-            {
-    					"datetime" : row.datetime,
-    					"sensor_id" : row.sensor_id,
-    					"value" : row.value
-    				});
-        });
+            query = "SELECT " +
+                      "datetime, " +
+                      "sensor_id, " +
+                      "value " +
+                      "FROM humidities " +
+                      "WHERE sensor_id = '" + row_sensor.sensor_id + "'" +
+                      "ORDER BY datetime DESC " +
+                      "LIMIT 1";
 
-        res.contentType('application/json');
-        res.send(JSON.stringify(result3));
+               db.all(query, function(err, rows)
+                {
+                  if (err)
+                  {
+                    return console.error(err.message);
+                  }
+                    rows.forEach((row) =>
+                  {
+                            result3["rows"].push(
+                        {
+                                    "datetime" : row.datetime,
+                                    "sensor_id" : row.sensor_id,
+                                    "value" : row.value
+                                });
+                    });
+
+                    res.contentType('application/json');
+                    res.send(JSON.stringify(result3));
+                });
+        });
 	});
 })
 
