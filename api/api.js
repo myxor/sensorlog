@@ -64,7 +64,7 @@ restapi.post('/temperatures', function(request, res)
           var temp_min_value = config_json.temp_min_value;
           var temp_max_value = config_json.temp_max_value;
 
-          if (body.value <= temp_min_value && body.value >= temp_max_value)
+          if (body.value >= temp_min_value && body.value <= temp_max_value)
           {
             var db = new sqlite3.Database(config_json.database.path);
             db.run(`INSERT INTO temperatures VALUES (?,?,?)`,
