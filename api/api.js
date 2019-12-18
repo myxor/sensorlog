@@ -541,11 +541,11 @@ restapi.get('/temperatures/current', function(request, res)
                                     "value" : row.value
                                 });
                     });
-
-                    res.contentType('application/json');
-                    res.send(JSON.stringify(result3));
                 });
         });
+
+        res.contentType('application/json');
+        res.send(JSON.stringify(result2));
 	});
 })
 
@@ -589,10 +589,12 @@ restapi.get('/humidities/current', function(request, res)
                                 });
                     });
 
-                    res.contentType('application/json');
-                    res.send(JSON.stringify(result3));
+
                 });
         });
+        
+        res.contentType('application/json');
+        res.send(JSON.stringify(result3));
 	});
 })
 
