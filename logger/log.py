@@ -114,7 +114,7 @@ def select_records_from_db(table):
     return r
 
 
-def delete_records_from_db(table, values):
+def delete_record_from_db(table, values):
     try:
         e = db_handle.execute("DELETE FROM " + table + " WHERE datetime=? AND sensor_id=? AND value=?", values)
         db_connection.commit()
@@ -140,13 +140,17 @@ def send_to_rest(path, t):
         records = select_records_from_db(path)
         if records is not None and len(records) > 0:
             for r in records:
-                if send_to_rest(path, r):
-                    delete_records_from_db(path, r)
+                data = {"datetime": r[0], "sensor_id": r[1], "value": r[2]}
+                data_json = json.dumps(data)
+                response = requests.post(full_url, data=data_json, headers=headers, timeout=10)
+                if response.status_code == requests.codes.ok:
+                    delete_record_from_db(path, r)
 
         return True
 
     except requests.exceptions.RequestException as e:
         insert_record_into_db(path, t)
+        print(e)
         return False
 
 
@@ -194,6 +198,8 @@ if dht is not None:
     get_dht22_values()
 else:
     print("No DHT support")
+
+log_temperature("bla", 1)
 
 # finalize:
 if log_type == "sqlite":
