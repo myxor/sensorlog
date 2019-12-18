@@ -77,6 +77,11 @@ restapi.post('/temperatures', function(request, res)
                 db.close();
               });
           }
+          else {
+            res.contentType('application/json');
+            res.status(400).send('Value does not match our thresholds!')
+            db.close();
+          }
         }
       }
   }
