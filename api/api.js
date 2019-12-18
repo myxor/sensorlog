@@ -56,21 +56,27 @@ restapi.post('/temperatures', function(request, res)
   if (request.body)
   {
       var body = request.body;
-      if (body.datetime && body.sensor_id && body.value)
+      if (body.datetime && body.sensor_id && body.sensor_id.length > 3 && body.value)
       {
         var datetime = new Date(body.datetime).toISOString();
-        if (datetime && body.sensor_id.length > 3)
+        if (datetime)
         {
-          var db = new sqlite3.Database(config_json.database.path);
-          db.run(`INSERT INTO temperatures VALUES (?,?,?)`,
-            [datetime, body.sensor_id, body.value], function(err) {
-              if (err) {
-                return console.error(err.message);
-              }
-              res.contentType('application/json');
-              res.send(["OK"]);
-              db.close();
-            });
+          var temp_min_value = config_json.temp_min_value;
+          var temp_max_value = config_json.temp_max_value;
+
+          if (body.value <= temp_min_value && body.value >= temp_max_value)
+          {
+            var db = new sqlite3.Database(config_json.database.path);
+            db.run(`INSERT INTO temperatures VALUES (?,?,?)`,
+              [datetime, body.sensor_id, body.value], function(err) {
+                if (err) {
+                  return console.error(err.message);
+                }
+                res.contentType('application/json');
+                res.send(["OK"]);
+                db.close();
+              });
+          }
         }
       }
   }
@@ -80,10 +86,10 @@ restapi.post('/humidities', function(request, res)
   if (request.body)
   {
       var body = request.body;
-      if (body.datetime && body.sensor_id && body.value)
+      if (body.datetime && body.sensor_id && body.sensor_id.length > 3 && body.value)
       {
         var datetime = new Date(body.datetime).toISOString();
-        if (datetime && body.sensor_id.length > 3)
+        if (datetime)
         {
           var db = new sqlite3.Database(config_json.database.path);
           db.run(`INSERT INTO humidities VALUES (?,?,?)`,
