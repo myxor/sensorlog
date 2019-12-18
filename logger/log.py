@@ -104,9 +104,10 @@ def insert_record_into_db(table, values):
 
 
 def select_records_from_db(table):
-    e = db_handle.execute("SELECT * FROM " + table + " ORDER BY datetime ASC LIMIT 10")
-    print("Selected %d records from table '%s'" % (e.rowcount, table))
-    return db_handle.fetchmany()
+    db_handle.execute("SELECT * FROM " + table + " ORDER BY datetime ASC LIMIT 10")
+    r = db_handle.fetchall()
+    print("Selected %d records from table '%s'" % (len(r), table))
+    return r
 
 
 def delete_records_from_db(table, values):
