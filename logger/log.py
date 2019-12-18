@@ -142,7 +142,9 @@ def send_to_rest(path, t):
             for r in records:
                 data = {"datetime": r[0], "sensor_id": r[1], "value": r[2]}
                 data_json = json.dumps(data)
+                print("Sending to " + full_url + "...")
                 response = requests.post(full_url, data=data_json, headers=headers, timeout=10)
+                print("HTTP response", response)
                 if response.status_code == requests.codes.ok:
                     delete_record_from_db(path, r)
 
