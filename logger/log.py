@@ -55,7 +55,7 @@ else:
     print("Usage: python3 log.py (sqlite|restful)")
     exit()
 
-	
+
 def get1wire():
 	# get all w1 slaves:
 	path_to_w1_master = '/sys/devices/w1_bus_master1/w1_master_slaves'
@@ -83,13 +83,13 @@ def get1wire():
 					logTemp(str(w1_slave), str(temperature))
 	else:
 		print("No 1wire support")
-				
+
 
 
 def logTemp(sensor_id, temperature):
 	print("logTemp(" + sensor_id + ", " + temperature + ")")
 	now = datetime.now(timezone.utc)
-	
+
 	if type == "sqlite":
 		# write into DB:
 		c.execute("INSERT INTO temperatures VALUES ('" +  now.isoformat() + "','" + str(sensor_id) + "', " + str(temperature) + ")")
@@ -104,11 +104,11 @@ def logTemp(sensor_id, temperature):
 		print("Sending to " + full_url + "...")
 		response = requests.post(full_url, data=data_json, headers=headers)
 		print("HTTP response", response)
-		
+
 def logHumi(sensor_id, humidity):
 	print("logHumi(" + sensor_id + ", " + humidity + ")")
 	now = datetime.now(timezone.utc)
-	
+
 	if type == "sqlite":
 		# write into DB:
 		c.execute("INSERT INTO humidities VALUES ('" +  now.isoformat() + "','" + str(sensor_id) + "', " + str(humidity) + ")")
@@ -123,18 +123,21 @@ def logHumi(sensor_id, humidity):
 		print("Sending to " + full_url + "...")
 		response = requests.post(full_url, data=data_json, headers=headers)
 		print("HTTP response", response)
-		
-def getDHT():			
-	import Adafruit_DHT					
+
+def getDHT():
+	import Adafruit_DHT
 	sensor = Adafruit_DHT.DHT22
 	pin = 4
-	humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)		
+	humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
 	print("Humidity: " + str(humidity) + "%, temperature: " + str(temperature) + "°C")
 	sensor_id = "DHT" + str(sensor) + str(pin)
-	logTemp(sensor_id, str(round(temperature,3)))
-	logHumi(sensor_id, str(round(humidity,3)))
-					
-					
+    if (humidity is not None):
+        logHumi(sensor_id, str(round(humidity,3)))
+    if (temperature is not None):
+	    logTemp(sensor_id, str(round(temperature,3)))
+
+
+
 get1wire()
 
 # Look for DHT support
@@ -145,9 +148,9 @@ if (dht_supported):
 	getDHT()
 else:
 	print("No DHT support")
-					
-					
-# finalize:		
+
+
+# finalize:
 if type == "sqlite":
     conn.commit()
     conn.close()
