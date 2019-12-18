@@ -99,7 +99,7 @@ def get1wire():
 
 
 def insert_record_into_db(table, values):
-    db_handle.execute("INSERT INTO " + table + " (datetime, sensor_id, value) VALUES (?,?,?)", values)
+    db_handle.execute("INSERT INTO " + table + " (datetime, sensor_id, value) VALUES (?,?,?)", (values))
     print("Inserted into sqlite table '%s' with rowid=%d" % (table, db_handle.lastrowid))
 
 
