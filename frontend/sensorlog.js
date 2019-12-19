@@ -8,7 +8,7 @@ function loadConfig() {
   }).done(function(results_current) {
       config_json = results_current;
       if (config_json && config_json.api_url) {
-        api_url = config.api_url;
+        api_url = config_json.api_url;
 
         loadTemperatures(minus24h.toISOString());
         loadHumidities(minus24h.toISOString());
