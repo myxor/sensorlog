@@ -66,18 +66,18 @@ function loadTemperatures(from_ts, until_ts) {
     getAllData();
   });
 
-  function getCurrentValueForSensor(sensor_id) {
+  function getCurrentValueForSensor(sensor_id, key) {
     var data_row = current_values.filter(function(r) {
       return r.sensor_id == sensor_id;
     });
-    return data_row && data_row[0] ? data_row[0].value : "-";
+    return data_row && data_row[0] && data_row[0][key] ? data_row[0][key] : "-";
   }
 
-  function getStatValueForSensor(sensor_id, stat) {
+  function getStatValueForSensor(sensor_id, key) {
     var stat_row = stats_values.filter(function(r) {
-      return r["sensor_id"] == sensor_id;
-    })
-    return stat_row && stat_row[0] && stat_row[0][stat] ? stat_row[0][stat] : "";
+      return r.sensor_id == sensor_id;
+    });
+    return stat_row && stat_row[0] && stat_row[0][key] ? stat_row[0][key] : "";
   }
 
   function getAllData() {
@@ -97,7 +97,8 @@ function loadTemperatures(from_ts, until_ts) {
           x: [],
           y: [],
           mode: 'lines',
-          name: "<b>" + row.name + ": " + getCurrentValueForSensor(row.sensor_id) + "°C</b> " +
+          name: "<b>" + row.name + ": " + getCurrentValueForSensor(row.sensor_id, "value") + "°C</b> " +
+            "@" + getCurrentValueForSensor(row.sensor_id, "datetime") + " " +
             "(avg: " + getStatValueForSensor(row.sensor_id, "avg") + ", " +
             "min: " + getStatValueForSensor(row.sensor_id, "min") + ", " +
             "max: " + getStatValueForSensor(row.sensor_id, "max") +
@@ -164,7 +165,6 @@ function loadTemperatures(from_ts, until_ts) {
       var layout = {
         showlegend: true,
         xaxis: {
-          title: 't',
           rangeselector: selectorOptions,
           type: 'date',
           showline: true,
@@ -308,17 +308,17 @@ function loadHumidities(from_ts, until_ts) {
   });
 
 
-  function getCurrentValueForSensor(sensor_id) {
+  function getCurrentValueForSensor(sensor_id, key) {
     var data_row = current_hum_values.filter(function(r) {
       return r.sensor_id == sensor_id;
     });
-    return data_row && data_row[0] ? data_row[0].value : "-";
+    return data_row && data_row[0] && data_row[0][key] ? data_row[0][key] : "-";
   }
 
   function getStatValueForSensor(sensor_id, stat) {
     var stat_row = stats_values.filter(function(r) {
-      return r["sensor_id"] == sensor_id;
-    })
+      return r.sensor_id == sensor_id;
+    });
     return stat_row && stat_row[0] && stat_row[0][stat] ? stat_row[0][stat] : "";
   }
 
@@ -339,7 +339,8 @@ function loadHumidities(from_ts, until_ts) {
           x: [],
           y: [],
           mode: 'lines',
-          name: "<b>" + row.name + ": " + getCurrentValueForSensor(row.sensor_id) + "%</b> " +
+          name: "<b>" + row.name + ": " + getCurrentValueForSensor(row.sensor_id, "value") + "%</b> " +
+            "@" + getCurrentValueForSensor(row.sensor_id, "datetime") + " " +
             "(avg: " + getStatValueForSensor(row.sensor_id, "avg") + ", " +
             "min: " + getStatValueForSensor(row.sensor_id, "min") + ", " +
             "max: " + getStatValueForSensor(row.sensor_id, "max") +
@@ -406,7 +407,6 @@ function loadHumidities(from_ts, until_ts) {
       var layout = {
         showlegend: true,
         xaxis: {
-          title: 't',
           rangeselector: selectorOptions,
           type: 'date',
           showline: true,
