@@ -14,7 +14,8 @@ import requests
 import json
 import os.path
 import configparser
-from importlib import importlib, util
+import importlib
+from importlib import util
 
 config = configparser.ConfigParser()
 config.read('config.ini')
