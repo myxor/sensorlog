@@ -6,6 +6,9 @@
 body {
   font-family: font-family: roboto, sans-serif;
 }
+h1 {
+  font-family: font-family: roboto, sans-serif;
+}
 
 .loader {
   border: 16px solid #0D47A1;
