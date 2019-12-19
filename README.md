@@ -48,6 +48,10 @@ Built with [jquery](https://github.com/jquery/jquery/) and [plotly.js](https://g
 3. install node.js
 4. run `npm install`
 5. start api by running `node api.js`
+6. configure frontend (in the `frontend` folder):
+    - copy `config.example.json` file to `config.json`
+    - open the file and type in the URL where your RESTful API is reachable
+7. you need nginx, apache, lighttp or some other webserver to serve the frontend
 
 ### On the client (where the sensors are attached and the logger should be running)
 
@@ -85,7 +89,7 @@ replace $user with the username the service should run as.
 After you saved the file you can enable and start the service with:
 
 ```
-sudo systemctl daemon-reload 
+sudo systemctl daemon-reload
 
 sudo systemctl enable sensorlog-api
 

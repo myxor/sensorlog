@@ -59,19 +59,24 @@
 
       function loadConfig() {
         var xmlhttp = new XMLHttpRequest();
-        xmlhttp.open("GET", "config.json", false);
+        xmlhttp.open("GET", "config.json", true);
         xmlhttp.send();
         if (xmlhttp.status == 200) {
           var config = JSON.parse(xmlhttp.responseText);
           if (config) {
-            api_url = config.api_url;
+            if (config.api_url) {
+              api_url = config.api_url;
 
-            loadTemperatures(minus24h.toISOString());
-            loadHumidities(minus24h.toISOString());
+              loadTemperatures(minus24h.toISOString());
+              loadHumidities(minus24h.toISOString());
+            } else {
+              console.error("Config invalid.")
+            }
+          } else {
+            console.error("Unable to parse 'config.json'.")
           }
-          else {
-            console.error("Unable to load 'config.json'.")
-          }
+        } else {
+          console.error("Unable to load 'config.json'.")
         }
       }
 
