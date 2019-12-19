@@ -15,8 +15,8 @@ function loadConfig() {
       } else {
         console.error("Config invalid.")
       }
-    }
-  });
+    });
+  };
 
 
 function loadTemperatures(from_ts, until_ts) {
