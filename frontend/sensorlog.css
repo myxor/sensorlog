@@ -1,13 +1,8 @@
-@font-face {
-  font-family: roboto;
-  src: url(Roboto-Regular.ttf);
-}
-
 body {
-  font-family: font-family: roboto, sans-serif;
+  font-family: "Open Sans", verdana, arial, sans-serif;
 }
 h1 {
-  font-family: font-family: roboto, sans-serif;
+  font-family: "Open Sans", verdana, arial, sans-serif;
 }
 
 .loader {
