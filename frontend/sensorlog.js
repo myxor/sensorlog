@@ -33,7 +33,7 @@ function formatDate(datestring)
 }
 
 function loadTemperatures(from_ts, until_ts) {
-  var loader = document.getElementById('loader');
+  var loader = document.getElementById('temperature_loader');
   loader.style.visibility = "visible";
 
   var params = '';
@@ -247,9 +247,9 @@ function loadTemperatures(from_ts, until_ts) {
 
 
       // draw graph:
-      var tempDiv = document.getElementById('tempDiv');
+      var tempDiv = document.getElementById('temperature_graph');
 
-      var gd = Plotly.newPlot('tempDiv', data, layout, {
+      var gd = Plotly.newPlot('temperature_graph', data, layout, {
         responsive: true,
         locale: 'de'
       });
@@ -276,7 +276,7 @@ function loadTemperatures(from_ts, until_ts) {
 
 
 function loadHumidities(from_ts, until_ts) {
-  var loader = document.getElementById('loader');
+  var loader = document.getElementById('humidity_loader');
   loader.style.visibility = "visible";
 
   var params = '';
@@ -487,9 +487,9 @@ function loadHumidities(from_ts, until_ts) {
 
 
       // draw graph:
-      var humiDiv = document.getElementById('humiDiv');
+      var humiDiv = document.getElementById('humidity_graph');
 
-      var gd = Plotly.newPlot('humiDiv', data, layout, {
+      var gd = Plotly.newPlot('humidity_graph', data, layout, {
         responsive: true,
         locale: 'de'
       });
@@ -516,9 +516,9 @@ function loadHumidities(from_ts, until_ts) {
         showlegend: false
       }];
 
-      Plotly.newPlot('humiPieChartDiv', humiPieChartData, {
+      Plotly.newPlot('humidity_pie_graph', humiPieChartData, {
         height: 400,
-        width: 500
+        width: 400
       });
 
       loader.style.visibility = "hidden";
