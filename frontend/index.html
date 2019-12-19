@@ -60,24 +60,27 @@
       function loadConfig() {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", "config.json", true);
-        xmlhttp.send();
-        if (xmlhttp.status == 200) {
-          var config = JSON.parse(xmlhttp.responseText);
-          if (config) {
-            if (config.api_url) {
-              api_url = config.api_url;
+        xmlhttp.onload = function (e) {
+          if (xmlhttp.readyState === 4) {
+            if (xmlhttp.status === 200) {
+              var config = JSON.parse(xmlhttp.responseText);
+              if (config) {
+                if (config.api_url) {
+                  api_url = config.api_url;
 
-              loadTemperatures(minus24h.toISOString());
-              loadHumidities(minus24h.toISOString());
+                  loadTemperatures(minus24h.toISOString());
+                  loadHumidities(minus24h.toISOString());
+                } else {
+                  console.error("Config invalid.")
+                }
+              } else {
+                console.error("Unable to parse 'config.json'.")
+              }
             } else {
-              console.error("Config invalid.")
+              console.error(xmlhttp.statusText);
             }
-          } else {
-            console.error("Unable to parse 'config.json'.")
           }
-        } else {
-          console.error("Unable to load 'config.json'.")
-        }
+        };
       }
 
       var minus24h = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
