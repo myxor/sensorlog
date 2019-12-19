@@ -493,7 +493,8 @@ function loadHumidities(from_ts, until_ts) {
         type: 'pie',
         textinfo: "label+percent",
         textposition: "outside",
-        automargin: true
+        automargin: true,
+        showlegend: false
       }];
 
       Plotly.newPlot('humiPieChartDiv', humiPieChartData, {
