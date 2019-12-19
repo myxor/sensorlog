@@ -1,10 +1,12 @@
 # sensorlog
 
-Distributed tool which records and plots temperature and humidity values from multiple 1-wire and DHT22 sensors across the network or locally.
+I've created this project to support a network of temperature and humidity sensors in my home.
 
-Additionally it comes with a basic web frontend showing the plotted data:
+The architecture uses one 'master' server to aggregate and display the logged data, and many clients place around a house to send log data back to the 'master'.
 
-![alt text](https://raw.githubusercontent.com/myxor/sensorlog/master/res/graph.png "Graph with three different sensors")
+## Graph with three temperature sensors and one humidity sensor
+
+![alt text](https://raw.githubusercontent.com/myxor/sensorlog/master/res/graph.png "Graph with three temperature sensors and one humidity sensor")
 
 
 ## Components
@@ -106,3 +108,13 @@ You can run the logger on your clients by crontab:
 The following example will log sensor values every 10 minutes:
 
 ```*/10 * * * * /usr/bin/python3 ~/sensorlog/logger/log.py restful```
+
+
+# License
+
+MIT
+
+
+# Author
+
+This project was created in 2018 by Marco Heiming
