@@ -1,19 +1,28 @@
 var api_url = '';
 var minus24h = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
+var config_json;
 
 function loadConfig() {
   $.ajax({
     url: 'config.json',
-    dataType: 'json'
+    dataType: 'json',
+    cache: false
   }).done(function(results_current) {
       config_json = results_current;
-      if (config_json && config_json.api_url) {
-        api_url = config_json.api_url;
+      if (config_json)
+      {
+        $("#page_title").text(config_json.page_title);
+        $("#temperature_title").text(config_json.temperature_title);
+        $("#humidity_title").text(config_json.humidity_title);
 
-        loadTemperatures(minus24h.toISOString());
-        loadHumidities(minus24h.toISOString());
-      } else {
-        console.error("Config invalid.")
+        if (config_json.api_url) {
+          api_url = config_json.api_url;
+
+          loadTemperatures(minus24h.toISOString());
+          loadHumidities(minus24h.toISOString());
+        } else {
+          console.error("Config is missing value for 'api_url'.")
+        }
       }
     });
   };
@@ -44,7 +53,8 @@ function loadTemperatures(from_ts, until_ts) {
   var config_json = null;
   $.ajax({
     url: api_url + '/config',
-    dataType: 'json'
+    dataType: 'json',
+    cache: false
   }).done(function(results_current) {
     config_json = results_current;
     if (config_json && config_json.sensors) {
@@ -64,7 +74,8 @@ function loadTemperatures(from_ts, until_ts) {
 
   $.ajax({
     url: api_url + '/temperatures/current?',
-    dataType: 'json'
+    dataType: 'json',
+    cache: false
   }).done(function(results_current) {
     current_values = results_current["rows"];
     getAllData();
@@ -87,7 +98,8 @@ function loadTemperatures(from_ts, until_ts) {
   function getAllData() {
     $.ajax({
       url: api_url + '/temperatures?' + params,
-      dataType: 'json'
+      dataType: 'json',
+      cache: false
     }).done(function(results) {
 
       var data = []
@@ -284,7 +296,8 @@ function loadHumidities(from_ts, until_ts) {
   var config_json = null;
   $.ajax({
     url: api_url + '/config',
-    dataType: 'json'
+    dataType: 'json',
+    cache: false
   }).done(function(results_current) {
     config_json = results_current;
     if (config_json && config_json.sensors) {
@@ -304,7 +317,8 @@ function loadHumidities(from_ts, until_ts) {
 
   $.ajax({
     url: api_url + '/humidities/current?',
-    dataType: 'json'
+    dataType: 'json',
+    cache: false
   }).done(function(results_current) {
     current_hum_values = results_current["rows"];
 
@@ -329,7 +343,8 @@ function loadHumidities(from_ts, until_ts) {
   function getAllData() {
     $.ajax({
       url: api_url + '/humidities?' + params,
-      dataType: 'json'
+      dataType: 'json',
+      cache: false
     }).done(function(results) {
 
       var data = []
@@ -493,7 +508,7 @@ function loadHumidities(from_ts, until_ts) {
 
       var humiPieChartData = [{
         values: [current_hum_values[0].value, 100 - current_hum_values[0].value],
-        labels: ['Luftfeuchtigkeit'],
+        labels: [config_json.humidity_title],
         type: 'pie',
         textinfo: "label+percent",
         textposition: "outside",

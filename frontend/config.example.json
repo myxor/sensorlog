@@ -1,3 +1,6 @@
 {
-  "api_url": "https://URL to your RESTful API"
+  "api_url": "https://URL to your RESTful API",
+  "page_title": "Sensorlog",
+  "temperature_title": "Temperature",
+  "humidity_title": "Humidity"
 }
