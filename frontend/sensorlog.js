@@ -2,33 +2,85 @@ var api_url = '';
 var minus24h = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
 var config_json;
 
+var selectorOptions = {
+  buttons: [{
+    step: 'hour',
+    stepmode: 'backward',
+    count: 1,
+    label: '1 Stunde'
+  }, {
+    step: 'hour',
+    stepmode: 'todate',
+    count: 6,
+    label: '6 Stunden'
+  }, {
+    step: 'hour',
+    stepmode: 'todate',
+    count: 12,
+    label: '12 Stunden'
+  }, {
+    step: 'hour',
+    stepmode: 'backward',
+    count: 24,
+    label: '24 Stunden'
+  }, {
+    step: 'hour',
+    stepmode: 'backward',
+    count: 48,
+    label: '48 Stunden',
+  }, {
+    step: 'day',
+    stepmode: 'backward',
+    count: 7,
+    label: '1 Woche'
+  }, {
+    step: 'month',
+    stepmode: 'backward',
+    count: 1,
+    label: '1 Monat'
+  }, {
+    step: 'year',
+    stepmode: 'backward',
+    count: 1,
+    label: '1 Jahr'
+  }, {
+    step: 'year',
+    stepmode: 'todate',
+    count: 1,
+    label: 'Dieses Jahr'
+  }, {
+    step: 'year',
+    stepmode: 'backward',
+    count: 30,
+    label: 'Alles'
+  }],
+};
+
 function loadConfig() {
   $.ajax({
     url: 'config.json',
     dataType: 'json',
     cache: false
   }).done(function(results_current) {
-      config_json = results_current;
-      if (config_json)
-      {
-        $("#page_title").text(config_json.page_title);
-        $("#temperature_title").text(config_json.temperature_title);
-        $("#humidity_title").text(config_json.humidity_title);
+    config_json = results_current;
+    if (config_json) {
+      $("#page_title").text(config_json.page_title);
+      $("#temperature_title").text(config_json.temperature_title);
+      $("#humidity_title").text(config_json.humidity_title);
 
-        if (config_json.api_url) {
-          api_url = config_json.api_url;
+      if (config_json.api_url) {
+        api_url = config_json.api_url;
 
-          loadTemperatures(minus24h.toISOString());
-          loadHumidities(minus24h.toISOString());
-        } else {
-          console.error("Config is missing value for 'api_url'.")
-        }
+        loadTemperatures(minus24h.toISOString());
+        loadHumidities(minus24h.toISOString());
+      } else {
+        console.error("Config is missing value for 'api_url'.")
       }
-    });
-  };
+    }
+  });
+};
 
-function formatDate(datestring)
-{
+function formatDate(datestring) {
   return new Date(datestring).toLocaleString();
 }
 
@@ -112,7 +164,7 @@ function loadTemperatures(from_ts, until_ts) {
           sensor_id: row.sensor_id,
           x: [],
           y: [],
-          mode: 'lines',
+          mode: 'lines+markers',
           name: "<b>" + row.name + ": " + getCurrentValueForSensor(row.sensor_id, "value") + "°C</b> " +
             "@" + formatDate(getCurrentValueForSensor(row.sensor_id, "datetime")) + " " +
             "(avg: " + getStatValueForSensor(row.sensor_id, "avg") + ", " +
@@ -121,7 +173,7 @@ function loadTemperatures(from_ts, until_ts) {
             ")",
           marker: {
             color: row.color,
-            size: 12,
+            size: 4,
             line: {
               color: 'white',
               width: 1
@@ -129,54 +181,6 @@ function loadTemperatures(from_ts, until_ts) {
           }
         });
       });
-
-
-
-      var selectorOptions = {
-        buttons: [{
-          step: 'hour',
-          stepmode: 'backward',
-          count: 1,
-          label: '1 Stunde'
-        }, {
-          step: 'hour',
-          stepmode: 'todate',
-          count: 6,
-          label: '6 Stunden'
-        }, {
-          step: 'hour',
-          stepmode: 'todate',
-          count: 12,
-          label: '12 Stunden'
-        }, {
-          step: 'hour',
-          stepmode: 'backward',
-          count: 24,
-          label: '24 Stunden'
-        }, {
-          step: 'hour',
-          stepmode: 'backward',
-          count: 48,
-          label: '48 Stunden',
-        }, {
-          step: 'day',
-          stepmode: 'backward',
-          count: 7,
-          label: '1 Woche'
-        }, {
-          step: 'month',
-          stepmode: 'backward',
-          count: 1,
-          label: '1 Monat'
-        }, {
-          step: 'year',
-          stepmode: 'backward',
-          count: 1,
-          label: '1 Jahr'
-        }, {
-          step: 'all',
-        }],
-      };
 
       var layout = {
         showlegend: true,
@@ -357,7 +361,7 @@ function loadHumidities(from_ts, until_ts) {
           sensor_id: row.sensor_id,
           x: [],
           y: [],
-          mode: 'lines',
+          mode: 'lines+markers',
           name: "<b>" + row.name + ": " + getCurrentValueForSensor(row.sensor_id, "value") + "%</b> " +
             "@" + formatDate(getCurrentValueForSensor(row.sensor_id, "datetime")) + " " +
             "(avg: " + getStatValueForSensor(row.sensor_id, "avg") + ", " +
@@ -366,7 +370,7 @@ function loadHumidities(from_ts, until_ts) {
             ")",
           marker: {
             color: row.color,
-            size: 12,
+            size: 4,
             line: {
               color: 'white',
               width: 1
@@ -374,54 +378,6 @@ function loadHumidities(from_ts, until_ts) {
           }
         });
       });
-
-
-
-      var selectorOptions = {
-        buttons: [{
-          step: 'hour',
-          stepmode: 'backward',
-          count: 1,
-          label: '1 Stunde'
-        }, {
-          step: 'hour',
-          stepmode: 'todate',
-          count: 6,
-          label: '6 Stunden'
-        }, {
-          step: 'hour',
-          stepmode: 'todate',
-          count: 12,
-          label: '12 Stunden'
-        }, {
-          step: 'hour',
-          stepmode: 'backward',
-          count: 24,
-          label: '24 Stunden'
-        }, {
-          step: 'hour',
-          stepmode: 'backward',
-          count: 48,
-          label: '48 Stunden',
-        }, {
-          step: 'day',
-          stepmode: 'backward',
-          count: 7,
-          label: '1 Woche'
-        }, {
-          step: 'month',
-          stepmode: 'backward',
-          count: 1,
-          label: '1 Monat'
-        }, {
-          step: 'year',
-          stepmode: 'backward',
-          count: 1,
-          label: '1 Jahr'
-        }, {
-          step: 'all',
-        }],
-      };
 
       var layout = {
         showlegend: true,
