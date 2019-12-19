@@ -1,11 +1,10 @@
-#   log.py from sensorlog
+#!/usr/bin/env python
 #
 #   @date 2018-06-09 17:30
 #   @author Marco Heiming
 #
 #   https://github.com/myxor/sensorlog
 #
-
 
 import sqlite3
 import subprocess
@@ -16,8 +15,6 @@ import json
 import os.path
 import configparser
 import importlib
-# Look for DHT support
-from importlib import util
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -31,7 +28,7 @@ try:
     api_host = config['API']['HOST']
     api_port = config['API']['PORT']
 except KeyError:
-    print("Error: Needed path in config.ini not found.")
+    print("Error: Required field in config.ini missing.")
     exit()
 
 if db_path == "":
