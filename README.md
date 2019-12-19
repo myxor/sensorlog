@@ -59,7 +59,8 @@ Built with [jquery](https://github.com/jquery/jquery/) and [plotly.js](https://g
     - copy `config.example.ini` file to `config.ini`
     - open the file and replace the HOST and PORT values with the one from the machine your RESTful API is running on
 2. Install python3.6+
-3. (optional) if you want to use DHT22 sensors you need to install the Adafruit_Python_DHT module. See: [Adafruit_Python_DHT#install-with-pip](https://github.com/adafruit/Adafruit_Python_DHT#install-with-pip)
+3. Install python dependencies with `pip install -r requirements.txt`
+    - (optional) if you want to use DHT22 sensors you need to install the Adafruit_Python_DHT module. See: [Adafruit_Python_DHT#install-with-pip](https://github.com/adafruit/Adafruit_Python_DHT#install-with-pip)
 4. Run the logger by executing `python3 log.py sqlite` or `python3 log.py restful`
 
 
