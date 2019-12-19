@@ -55,8 +55,25 @@
   <div id="humiPieChartDiv">
 
     <script>
-      // FILL in URL of your API here:
-      const API_URL = 'https://cloud.marcoheiming.de:8085/api';
+      var api_url = '';
+
+      function loadConfig() {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", "config.json", false);
+        xmlhttp.send();
+        if (xmlhttp.status == 200) {
+          var config = JSON.parse(xmlhttp.responseText);
+          if (config) {
+            api_url = config.api_url;
+
+            loadTemperatures(minus24h.toISOString());
+            loadHumidities(minus24h.toISOString());
+          }
+          else {
+            console.error("Unable to load 'config.json'.")
+          }
+        }
+      }
 
       var minus24h = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
 
@@ -80,7 +97,7 @@
         // get config from API:
         var config_json = null;
         $.ajax({
-          url: API_URL + '/config',
+          url: api_url + '/config',
           dataType: 'json'
         }).done(function(results_current) {
           config_json = results_current;
@@ -100,7 +117,7 @@
         var stats_values = [];
 
         $.ajax({
-          url: API_URL + '/temperatures/current?',
+          url: api_url + '/temperatures/current?',
           dataType: 'json'
         }).done(function(results_current) {
           current_values = results_current["rows"];
@@ -123,7 +140,7 @@
 
         function getAllData() {
           $.ajax({
-            url: API_URL + '/temperatures?' + params,
+            url: api_url + '/temperatures?' + params,
             dataType: 'json'
           }).done(function(results) {
 
@@ -321,7 +338,7 @@
         // get config from API:
         var config_json = null;
         $.ajax({
-          url: API_URL + '/config',
+          url: api_url + '/config',
           dataType: 'json'
         }).done(function(results_current) {
           config_json = results_current;
@@ -341,7 +358,7 @@
         var stats_values = [];
 
         $.ajax({
-          url: API_URL + '/humidities/current?',
+          url: api_url + '/humidities/current?',
           dataType: 'json'
         }).done(function(results_current) {
           current_hum_values = results_current["rows"];
@@ -366,7 +383,7 @@
 
         function getAllData() {
           $.ajax({
-            url: API_URL + '/humidities?' + params,
+            url: api_url + '/humidities?' + params,
             dataType: 'json'
           }).done(function(results) {
 
@@ -546,8 +563,7 @@
         }
       }
 
-      loadTemperatures(minus24h.toISOString());
-      loadHumidities(minus24h.toISOString());
+      loadConfig();
     </script>
 </body>
 
