@@ -8,50 +8,22 @@
 <html lang="de">
 
 <head>
-  <title id ="page_title">Sensorlog</title>
+  <title id="page_title">Sensorlog</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <script src="jquery-3.3.1.min.js"></script>
   <script src="plotly.min.js"></script>
   <script src="sensorlog.js"></script>
-  <style>
-    .loader {
-      border: 16px solid #0D47A1;
-      border-radius: 50%;
-      border-top: 16px solid #3498db;
-      width: 200px;
-      height: 200px;
-      position: absolute;
-      left: 50%;
-      margin-left: -100px;
-      top: 50%;
-      margin-top: -100px -webkit-animation: spin 2s linear infinite;
-      animation: spin 2s linear infinite;
-      z-index: 100;
-      background-color: white;
-    }
-
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-  </style>
-
+  <link rel="stylesheet" type="text/css" href="sensorlog.css">
 </head>
 
 <body>
-
   <div class="loader" id="loader" style="visible: hidden"></div>
 
-  <h1 id ="temperature_title">Temperature</h1>
-  <div id="tempDiv"></div>
+  <h1 id="temperature_title">Temperature</h1>
+  <div id="tempDiv" class="card"></div>
 
-  <h1 id ="humidity_title">Humidity</h1>
-  <div id="humiDiv"></div>
+  <h1 id="humidity_title">Humidity</h1>
+  <div id="humiDiv" class="card"></div>
 
   <div id="humiPieChartDiv">
 </body>
