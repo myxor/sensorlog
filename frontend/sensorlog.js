@@ -18,6 +18,10 @@ function loadConfig() {
     });
   };
 
+function formatDate(datestring)
+{
+  return new Date(datestring).toLocaleString();
+}
 
 function loadTemperatures(from_ts, until_ts) {
   var loader = document.getElementById('loader');
@@ -98,7 +102,7 @@ function loadTemperatures(from_ts, until_ts) {
           y: [],
           mode: 'lines',
           name: "<b>" + row.name + ": " + getCurrentValueForSensor(row.sensor_id, "value") + "°C</b> " +
-            "@" + getCurrentValueForSensor(row.sensor_id, "datetime") + " " +
+            "@" + formatDate(getCurrentValueForSensor(row.sensor_id, "datetime")) + " " +
             "(avg: " + getStatValueForSensor(row.sensor_id, "avg") + ", " +
             "min: " + getStatValueForSensor(row.sensor_id, "min") + ", " +
             "max: " + getStatValueForSensor(row.sensor_id, "max") +
@@ -340,7 +344,7 @@ function loadHumidities(from_ts, until_ts) {
           y: [],
           mode: 'lines',
           name: "<b>" + row.name + ": " + getCurrentValueForSensor(row.sensor_id, "value") + "%</b> " +
-            "@" + getCurrentValueForSensor(row.sensor_id, "datetime") + " " +
+            "@" + formatDate(getCurrentValueForSensor(row.sensor_id, "datetime")) + " " +
             "(avg: " + getStatValueForSensor(row.sensor_id, "avg") + ", " +
             "min: " + getStatValueForSensor(row.sensor_id, "min") + ", " +
             "max: " + getStatValueForSensor(row.sensor_id, "max") +
