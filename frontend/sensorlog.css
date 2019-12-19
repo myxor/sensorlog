@@ -1,6 +1,7 @@
 body {
   font-family: "Open Sans", verdana, arial, sans-serif;
 }
+
 h1 {
   font-family: "Open Sans", verdana, arial, sans-serif;
 }
@@ -14,8 +15,8 @@ h1 {
   position: absolute;
   left: 50%;
   margin-left: -100px;
-  top: 50%;
-  margin-top: -100px -webkit-animation: spin 2s linear infinite;
+  top: 20%;
+  margin-top: 0px -webkit-animation: spin 2s linear infinite;
   animation: spin 2s linear infinite;
   z-index: 100;
   background-color: white;
@@ -39,7 +40,7 @@ h1 {
   margin: 1rem;
   position: relative;
   width: 95%;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 }
 
 .card-square {
@@ -50,5 +51,5 @@ h1 {
   margin: 1rem;
   position: relative;
   width: 400px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
 }
