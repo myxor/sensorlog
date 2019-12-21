@@ -68,8 +68,8 @@ function loadConfig() {
       $("#temperature_title").text(config_json.temperature_title);
       $("#humidity_title").text(config_json.humidity_title);
 
-      $("#humidity_pie_graph").attr("visibility", config_json.show_humidity_pie_chart == "yes" ? "visible" : "hidden");
-      $("#footer").attr("visibility", config_json.show_footer == "yes" ? "visible" : "hidden");
+      $("#humidity_pie_graph").css("visibility", config_json.show_humidity_pie_chart == "yes" ? "visible" : "hidden");
+      $("#footer").css("visibility", config_json.show_footer == "yes" ? "visible" : "hidden");
 
 
       if (config_json.api_url) {
