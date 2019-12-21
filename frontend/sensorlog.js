@@ -68,9 +68,13 @@ function loadConfig() {
       $("#temperature_title").text(config_json.temperature_title);
       $("#humidity_title").text(config_json.humidity_title);
 
-      $("#humidity_pie_graph").css("visibility", config_json.show_humidity_pie_chart == "yes" ? "visible" : "hidden");
-      $("#footer").css("visibility", config_json.show_footer == "yes" ? "visible" : "hidden");
+      if (config_json.show_humidity_pie_chart != "yes") {
+        $("#humidity_pie_graph").remove();
+      }
 
+      if (config_json.show_footer != "yes") {
+        $("#footer").remove();
+      }
 
       if (config_json.api_url) {
         api_url = config_json.api_url;
@@ -405,8 +409,7 @@ function loadHumidities(from_ts, until_ts) {
 
 
       // Pie chart:
-      if (config_json.show_humidity_pie_chart == "yes")
-      {
+      if (config_json.show_humidity_pie_chart == "yes") {
         var humiPieChartData = [{
           values: [current_values[0].value, 100 - current_values[0].value],
           labels: [config_json.humidity_title],
