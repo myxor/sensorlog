@@ -84,10 +84,78 @@ function formatDate(datestring) {
   return new Date(datestring).toLocaleString();
 }
 
-function loadTemperatures(from_ts, until_ts) {
-  var loader = document.getElementById('temperature_loader');
-  loader.style.visibility = "visible";
+function pushRecordToData(row) {
+  var d_string = row.datetime;
+  var d = new Date(d_string);
+  var v = parseFloat(row.value);
 
+  var data_row = data.filter(function(r) {
+    return r.sensor_id == row.sensor_id;
+  });
+
+  if (!data_row) {
+    data_row = data[data.length - 1];
+  } else {
+    data_row = data_row[0];
+  }
+
+  if (data_row && data_row.x && data_row.y) {
+    data_row.x.push(d);
+    data_row.y.push(v);
+  }
+}
+
+function getCurrentValueForSensor(sensor_id, key) {
+  var data_row = current_values.filter(function(r) {
+    return r.sensor_id == sensor_id;
+  });
+  return data_row && data_row[0] && data_row[0][key] ? data_row[0][key] : "-";
+}
+
+function getStatValueForSensor(sensor_id, key) {
+  var stat_row = stats_values.filter(function(r) {
+    return r.sensor_id == sensor_id;
+  });
+  return stat_row && stat_row[0] && stat_row[0][key] ? stat_row[0][key] : "";
+}
+
+
+var layout = {
+  showlegend: true,
+  xaxis: {
+    rangeselector: selectorOptions,
+    type: 'date',
+    showline: true,
+    showticklabels: true,
+    linewidth: 2,
+    autotick: true,
+    tickwidth: 2
+  },
+  yaxis: {
+    title: '',
+    fixedrange: true,
+    type: 'linear',
+    showgrid: true,
+    showline: true,
+    zeroline: true,
+    showticklabels: true,
+    side: 'right'
+  },
+  legend: {
+    x: 0.2,
+    y: 1.2,
+    xanchor: "center",
+    yanchor: "bottom",
+    //              traceorder: 'normal',
+    font: {
+      size: 14,
+      color: '#000'
+    }
+  },
+  autosize: true
+};
+
+function buildParams(from_ts, until_ts) {
   var params = '';
   if (from_ts) {
     params += 'from_ts=' + new Date(from_ts).toISOString();
@@ -98,6 +166,15 @@ function loadTemperatures(from_ts, until_ts) {
     }
     params += 'until_ts=' + new Date(until_ts).toISOString();
   }
+  return params;
+}
+
+
+function loadTemperatures(from_ts, until_ts) {
+  var loader = document.getElementById('temperature_loader');
+  loader.style.visibility = "visible";
+
+  var params = buildParams(from_ts, until_ts);
 
   var data_rows = []
 
@@ -119,9 +196,7 @@ function loadTemperatures(from_ts, until_ts) {
   });
 
 
-  // get current values:
   var current_values = [];
-
   var stats_values = [];
 
   $.ajax({
@@ -133,20 +208,6 @@ function loadTemperatures(from_ts, until_ts) {
     getAllData();
   });
 
-  function getCurrentValueForSensor(sensor_id, key) {
-    var data_row = current_values.filter(function(r) {
-      return r.sensor_id == sensor_id;
-    });
-    return data_row && data_row[0] && data_row[0][key] ? data_row[0][key] : "-";
-  }
-
-  function getStatValueForSensor(sensor_id, key) {
-    var stat_row = stats_values.filter(function(r) {
-      return r.sensor_id == sensor_id;
-    });
-    return stat_row && stat_row[0] && stat_row[0][key] ? stat_row[0][key] : "";
-  }
-
   function getAllData() {
     $.ajax({
       url: api_url + '/temperatures?' + params,
@@ -157,7 +218,6 @@ function loadTemperatures(from_ts, until_ts) {
       var data = []
 
       stats_values = results["stats"];
-
 
       data_rows.forEach(function(row) {
         data.push({
@@ -182,68 +242,7 @@ function loadTemperatures(from_ts, until_ts) {
         });
       });
 
-      var layout = {
-        showlegend: true,
-        xaxis: {
-          rangeselector: selectorOptions,
-          type: 'date',
-          showline: true,
-          showticklabels: true,
-          linewidth: 2,
-          autotick: true,
-          tickwidth: 2
-        },
-        yaxis: {
-          title: '°C',
-          fixedrange: true,
-          type: 'linear',
-          showgrid: true,
-          showline: true,
-          zeroline: true,
-          showticklabels: true,
-          side: 'right'
-        },
-        legend: {
-          x: 0.2,
-          y: 1.2,
-          xanchor: "center",
-          yanchor: "bottom",
-          //              traceorder: 'normal',
-          font: {
-            size: 14,
-            color: '#000'
-          }
-        },
-        autosize: true
-      };
-
-      function pushRecordToData(row) {
-        var d_string = row.datetime;
-        var d = new Date(d_string);
-        var v = parseFloat(row.value);
-
-        // do not show wrong values:
-        if (v > 70) {
-          return false;
-        }
-
-        var data_row = data.filter(function(r) {
-          return r.sensor_id == row.sensor_id;
-        });
-
-        if (!data_row) {
-          data_row = data[data.length - 1];
-        } else {
-          data_row = data_row[0];
-        }
-
-        if (data_row && data_row.x && data_row.y) {
-          data_row.x.push(d);
-          data_row.y.push(v);
-        }
-      }
-
-
+      layout.yaxis.title = '°C';
 
       results["rows"].forEach(function(row) {
         pushRecordToData(row);
@@ -283,16 +282,7 @@ function loadHumidities(from_ts, until_ts) {
   var loader = document.getElementById('humidity_loader');
   loader.style.visibility = "visible";
 
-  var params = '';
-  if (from_ts) {
-    params += 'from_ts=' + new Date(from_ts).toISOString();
-  }
-  if (until_ts) {
-    if (params !== '') {
-      params += '&'
-    }
-    params += 'until_ts=' + new Date(until_ts).toISOString();
-  }
+  var params = buildParams(from_ts, until_ts);
 
   var data_rows = []
 
@@ -313,36 +303,15 @@ function loadHumidities(from_ts, until_ts) {
     }
   });
 
-
-  // get current values:
-  var current_hum_values = [];
-
-  var stats_values = [];
-
   $.ajax({
     url: api_url + '/humidities/current?',
     dataType: 'json',
     cache: false
   }).done(function(results_current) {
-    current_hum_values = results_current["rows"];
+    current_values = results_current["rows"];
 
     getAllData();
   });
-
-
-  function getCurrentValueForSensor(sensor_id, key) {
-    var data_row = current_hum_values.filter(function(r) {
-      return r.sensor_id == sensor_id;
-    });
-    return data_row && data_row[0] && data_row[0][key] ? data_row[0][key] : "-";
-  }
-
-  function getStatValueForSensor(sensor_id, stat) {
-    var stat_row = stats_values.filter(function(r) {
-      return r.sensor_id == sensor_id;
-    });
-    return stat_row && stat_row[0] && stat_row[0][stat] ? stat_row[0][stat] : "";
-  }
 
   function getAllData() {
     $.ajax({
@@ -379,63 +348,7 @@ function loadHumidities(from_ts, until_ts) {
         });
       });
 
-      var layout = {
-        showlegend: true,
-        xaxis: {
-          rangeselector: selectorOptions,
-          type: 'date',
-          showline: true,
-          showticklabels: true,
-          linewidth: 2,
-          autotick: true,
-          tickwidth: 2
-        },
-        yaxis: {
-          title: '%',
-          fixedrange: true,
-          type: 'linear',
-          showgrid: true,
-          showline: true,
-          zeroline: true,
-          showticklabels: true,
-          side: 'right'
-        },
-        legend: {
-          x: 0.2,
-          y: 1.2,
-          xanchor: "center",
-          yanchor: "bottom",
-          //              traceorder: 'normal',
-          font: {
-            size: 14,
-            color: '#000'
-          }
-        },
-        autosize: true
-      };
-
-      function pushRecordToData(row) {
-        var d_string = row.datetime;
-        var d = new Date(d_string);
-        var v = parseFloat(row.value);
-
-        var data_row = data.filter(function(r) {
-          return r.sensor_id == row.sensor_id;
-        });
-
-        if (!data_row) {
-          data_row = data[data.length - 1];
-        } else {
-          data_row = data_row[0];
-        }
-
-        if (data_row && data_row.x && data_row.y) {
-          data_row.x.push(d);
-          data_row.y.push(v);
-        }
-      }
-
-
+      layout.yaxis.title = '%';
 
       results["rows"].forEach(function(row) {
         pushRecordToData(row);
@@ -462,8 +375,9 @@ function loadHumidities(from_ts, until_ts) {
       });
 
 
+      // Pie chart:
       var humiPieChartData = [{
-        values: [current_hum_values[0].value, 100 - current_hum_values[0].value],
+        values: [current_values[0].value, 100 - current_values[0].value],
         labels: [config_json.humidity_title],
         type: 'pie',
         textinfo: "label+percent",
