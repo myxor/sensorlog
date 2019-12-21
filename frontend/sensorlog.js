@@ -68,6 +68,10 @@ function loadConfig() {
       $("#temperature_title").text(config_json.temperature_title);
       $("#humidity_title").text(config_json.humidity_title);
 
+      $("#humidity_pie_graph").visibility(config_json.show_humidity_pie_chart == "yes");
+      $("#footer").visibility(config_json.show_footer == "yes");
+
+
       if (config_json.api_url) {
         api_url = config_json.api_url;
 

@@ -2,5 +2,7 @@
   "api_url": "https://URL to your RESTful API",
   "page_title": "Sensorlog",
   "temperature_title": "Temperature",
-  "humidity_title": "Humidity"
+  "humidity_title": "Humidity",
+  "show_humidity_pie_chart": "yes",
+  "show_footer": "yes"
 }
