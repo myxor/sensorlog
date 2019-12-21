@@ -84,7 +84,8 @@ function formatDate(datestring) {
   return new Date(datestring).toLocaleString();
 }
 
-
+var current_values = [];
+var stats_values = [];
 
 function getCurrentValueForSensor(sensor_id, key) {
   var data_row = current_values.filter(function(r) {
@@ -175,10 +176,6 @@ function loadTemperatures(from_ts, until_ts) {
       });
     }
   });
-
-
-  var current_values = [];
-  var stats_values = [];
 
   $.ajax({
     url: api_url + '/temperatures/current?',
@@ -396,7 +393,6 @@ function loadHumidities(from_ts, until_ts) {
           loadHumidities(from_ts, until_ts);
         }
       });
-
 
       // Pie chart:
       var humiPieChartData = [{
