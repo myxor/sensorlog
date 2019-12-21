@@ -84,26 +84,7 @@ function formatDate(datestring) {
   return new Date(datestring).toLocaleString();
 }
 
-function pushRecordToData(row, data) {
-  var d_string = row.datetime;
-  var d = new Date(d_string);
-  var v = parseFloat(row.value);
 
-  var data_row = data.filter(function(r) {
-    return r.sensor_id == row.sensor_id;
-  });
-
-  if (!data_row) {
-    data_row = data[data.length - 1];
-  } else {
-    data_row = data_row[0];
-  }
-
-  if (data_row && data_row.x && data_row.y) {
-    data_row.x.push(d);
-    data_row.y.push(v);
-  }
-}
 
 function getCurrentValueForSensor(sensor_id, key) {
   var data_row = current_values.filter(function(r) {
@@ -244,8 +225,29 @@ function loadTemperatures(from_ts, until_ts) {
 
       layout.yaxis.title = '°C';
 
+      function pushRecordToData(row) {
+        var d_string = row.datetime;
+        var d = new Date(d_string);
+        var v = parseFloat(row.value);
+
+        var data_row = data.filter(function(r) {
+          return r.sensor_id == row.sensor_id;
+        });
+
+        if (!data_row) {
+          data_row = data[data.length - 1];
+        } else {
+          data_row = data_row[0];
+        }
+
+        if (data_row && data_row.x && data_row.y) {
+          data_row.x.push(d);
+          data_row.y.push(v);
+        }
+      }
+
       results["rows"].forEach(function(row) {
-        pushRecordToData(row, data);
+        pushRecordToData(row);
       });
 
 
@@ -350,8 +352,29 @@ function loadHumidities(from_ts, until_ts) {
 
       layout.yaxis.title = '%';
 
+      function pushRecordToData(row) {
+        var d_string = row.datetime;
+        var d = new Date(d_string);
+        var v = parseFloat(row.value);
+
+        var data_row = data.filter(function(r) {
+          return r.sensor_id == row.sensor_id;
+        });
+
+        if (!data_row) {
+          data_row = data[data.length - 1];
+        } else {
+          data_row = data_row[0];
+        }
+
+        if (data_row && data_row.x && data_row.y) {
+          data_row.x.push(d);
+          data_row.y.push(v);
+        }
+      }
+
       results["rows"].forEach(function(row) {
-        pushRecordToData(row, data);
+        pushRecordToData(row);
       });
 
 
