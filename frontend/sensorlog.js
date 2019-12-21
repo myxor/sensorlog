@@ -165,15 +165,15 @@ function loadTemperatures(from_ts, until_ts) {
   var data_rows = []
 
   // get config from API:
-  var config_json = null;
+  var api_config_json = null;
   $.ajax({
     url: api_url + '/config',
     dataType: 'json',
     cache: false
   }).done(function(results_current) {
-    config_json = results_current;
-    if (config_json && config_json.sensors) {
-      config_json.sensors.forEach(function(config_sensor) {
+    api_config_json = results_current;
+    if (api_config_json && api_config_json.sensors) {
+      api_config_json.sensors.forEach(function(config_sensor) {
         if (config_sensor.type.indexOf("temperature") > -1) {
           data_rows.push(config_sensor);
         }
@@ -290,15 +290,15 @@ function loadHumidities(from_ts, until_ts) {
   var data_rows = []
 
   // get config from API:
-  var config_json = null;
+  var api_config_json = null;
   $.ajax({
     url: api_url + '/config',
     dataType: 'json',
     cache: false
   }).done(function(results_current) {
-    config_json = results_current;
-    if (config_json && config_json.sensors) {
-      config_json.sensors.forEach(function(config_sensor) {
+    api_config_json = results_current;
+    if (api_config_json && api_config_json.sensors) {
+      api_config_json.sensors.forEach(function(config_sensor) {
         if (config_sensor.type.indexOf("humidity") > -1) {
           data_rows.push(config_sensor);
         }
@@ -398,23 +398,30 @@ function loadHumidities(from_ts, until_ts) {
         }
       });
 
-      // Pie chart:
-      var humiPieChartData = [{
-        values: [current_values[0].value, 100 - current_values[0].value],
-        labels: [config_json.humidity_title],
-        type: 'pie',
-        textinfo: "label+percent",
-        textposition: "outside",
-        automargin: true,
-        showlegend: false
-      }];
-
-      Plotly.newPlot('humidity_pie_graph', humiPieChartData, {
-        height: 400,
-        width: 400
-      });
-
       loader.style.visibility = "hidden";
+
+
+
+
+
+      // Pie chart:
+      if (config_json.show_humidity_pie_chart == "yes")
+      {
+        var humiPieChartData = [{
+          values: [current_values[0].value, 100 - current_values[0].value],
+          labels: [config_json.humidity_title],
+          type: 'pie',
+          textinfo: "label+percent",
+          textposition: "outside",
+          automargin: true,
+          showlegend: false
+        }];
+
+        Plotly.newPlot('humidity_pie_graph', humiPieChartData, {
+          height: 400,
+          width: 400
+        });
+      }
     });
   }
 }
