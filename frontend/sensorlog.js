@@ -84,7 +84,7 @@ function formatDate(datestring) {
   return new Date(datestring).toLocaleString();
 }
 
-function pushRecordToData(row) {
+function pushRecordToData(row, data) {
   var d_string = row.datetime;
   var d = new Date(d_string);
   var v = parseFloat(row.value);
@@ -245,7 +245,7 @@ function loadTemperatures(from_ts, until_ts) {
       layout.yaxis.title = '°C';
 
       results["rows"].forEach(function(row) {
-        pushRecordToData(row);
+        pushRecordToData(row, data);
       });
 
 
@@ -351,7 +351,7 @@ function loadHumidities(from_ts, until_ts) {
       layout.yaxis.title = '%';
 
       results["rows"].forEach(function(row) {
-        pushRecordToData(row);
+        pushRecordToData(row, data);
       });
 
 
