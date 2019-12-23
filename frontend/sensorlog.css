@@ -142,3 +142,28 @@ h1 {
   color: #fff !important;
   background-color: #000 !important
 }
+
+.third {
+  float: left;
+  width: 100%;
+  padding: 8px 16px !important;
+}
+
+@media (min-width:601px) {
+  .third {
+    width: 30%
+  }
+}
+
+.bottombar {
+  border-bottom: 6px solid #ccc !important
+}
+
+.border-red {
+  border-color: #f44336 !important;
+}
+
+light-grey, .hover-light-grey:hover, .light-gray, .hover-light-gray:hover {
+  color: #000 !important;
+  background-color: #f1f1f1 !important
+}

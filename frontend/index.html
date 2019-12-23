@@ -18,13 +18,17 @@
 
 <body>
 
-
-  <div class="bar black">
-    <button class="bar-item button tablink" onclick="openTab(event,'Current')">Current</button>
-    <button class="bar-item button tablink red" onclick="openTab(event,'Graphs')">Graphs</button>
-    <button class="bar-item button tablink" onclick="openTab(event,'Historic')">Historic</button>
-  </div>
-  <br>
+  <div class="row">
+     <a href="javascript:void(0)" onclick="openTab(event, 'Current');">
+       <div class="third tablink bottombar hover-light-grey padding">Current data</div>
+     </a>
+     <a href="javascript:void(0)" onclick="openTab(event, 'Graphs');">
+       <div class="third tablink bottombar hover-light-grey padding border-red">Graphs</div>
+     </a>
+     <a href="javascript:void(0)" onclick="openTab(event, 'Historic');">
+       <div class="third tablink bottombar hover-light-grey padding">Historic</div>
+     </a>
+   </div>
 
   <div id="Current" class="container border tab" style="display:none">
     <h2>Current</h2>
@@ -59,16 +63,16 @@
   <script>
     function openTab(evt, tabName) {
       var i, x, tablinks;
-      x = document.getElementsByClassName("tab");
-      for (i = 0; i < x.length; i++) {
-        x[i].style.display = "none";
-      }
-      tablinks = document.getElementsByClassName("tablink");
-      for (i = 0; i < x.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" red", "");
-      }
-      document.getElementById(tabName).style.display = "block";
-      evt.currentTarget.className += " red";
+     x = document.getElementsByClassName("tab");
+     for (i = 0; i < x.length; i++) {
+       x[i].style.display = "none";
+     }
+     tablinks = document.getElementsByClassName("tablink");
+     for (i = 0; i < x.length; i++) {
+       tablinks[i].className = tablinks[i].className.replace(" border-red", "");
+     }
+     document.getElementById(tabName).style.display = "block";
+     evt.currentTarget.firstElementChild.className += " border-red";
     }
   </script>
 
