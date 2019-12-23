@@ -109,6 +109,10 @@ function getStatValueForSensor(sensor_id, key) {
   return stat_row && stat_row[0] && stat_row[0][key] ? stat_row[0][key] : "";
 }
 
+function generateGradientArrow(gradient) {
+  return '<div class="arrow-right"></div>';
+}
+
 
 var layout = {
   showlegend: true,
@@ -213,6 +217,7 @@ function loadTemperatures(from_ts, until_ts) {
           mode: 'lines+markers',
           name: "<b>" + row.name + ": " + getCurrentValueForSensor(row.sensor_id, "value") + "°C</b> " +
             "@" + formatDate(getCurrentValueForSensor(row.sensor_id, "datetime")) + " " +
+            generateGradientArrow(row.sensor_id, "regressionGradient") + " " +
             "(avg: " + getStatValueForSensor(row.sensor_id, "avg") + ", " +
             "min: " + getStatValueForSensor(row.sensor_id, "min") + ", " +
             "max: " + getStatValueForSensor(row.sensor_id, "max") +
