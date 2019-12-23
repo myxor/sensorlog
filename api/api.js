@@ -458,12 +458,12 @@ function calculateRegressionGradient(rows)
     regressionData[row.sensor_id].push([regressionData.length, row.value]);
   });
   console.log(regressionData);
-  regressionData.forEach((row) => {
-    console.log(row);
-    const result = regression.linear(row);
+  Object.keys(regressionData).forEach(function (key) {
+    console.log(regressionData[key]);
+    const result = regression.linear(regressionData[key]);
     const gradient = result.equation[0];
     //const yIntercept = result.equation[1];
-    //resultRegressionGradients[];
+    resultRegressionGradients[key] = gradient;
   });
 
 
