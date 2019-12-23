@@ -268,6 +268,10 @@ restapi.get('/temperatures', function(request, res) {
         result["stats"].push(o);
       });
 
+      var regressionGradient = calculateRegressionGradient(rows);
+      console.log(regressionGradient);
+      //result["stats"].push({})
+
       res.contentType('application/json');
       res.send(JSON.stringify(result));
       db.close();
@@ -434,10 +438,6 @@ restapi.get('/humidities', function(request, res) {
         result["stats"].push(o);
       });
 
-      var regression = calculateTrend(rows);
-      console.log(regression);
-      //result["stats"].push({})
-
       res.contentType('application/json');
       res.send(JSON.stringify(result));
       db.close();
@@ -445,19 +445,23 @@ restapi.get('/humidities', function(request, res) {
   });
 });
 
-function calculateTrend(rows)
+function calculateRegressionGradient(rows)
 {
-  var resultTrend = [];
+  var resultRegressionGradients = [];
   var regressionData = [];
-  // TODO: fix for multiple sensor_ids
   rows.forEach((row) => {
-    regressionData.push([regressionData.length, row.value]);
-  })
-  const result = regression.linear(regressionData);
-  const gradient = result.equation[0];
-  const yIntercept = result.equation[1];
+    regressionData[row.sensor_id].push([regressionData.length, row.value]);
+  });
+  regressionData.forEach((row) => {
+    console.log(row);
+    const result = regression.linear(row);
+    const gradient = result.equation[0];
+    //const yIntercept = result.equation[1];
+    //resultRegressionGradients[];
+  });
 
-  return result;
+
+  return resultRegressionGradients;
 }
 
 var result2 = {
