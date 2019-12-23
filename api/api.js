@@ -283,7 +283,7 @@ restapi.get('/temperatures', function(request, res) {
 function addStatToSensorStats(sensor_id, stats_list, new_stat)
 {
   Object.keys(stats_list).forEach(function(k) {
-    if (stats[k]["sensor_id"] == sensor_id)
+    if (stats_list[k]["sensor_id"] == sensor_id)
     {
       stats_list[k].push(new_stat);
     }
