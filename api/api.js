@@ -451,7 +451,9 @@ function calculateTrend(rows)
   rows.forEach((row) => {
     regressionData.push([regressionData.length, row.value]);
   })
+  console.log(regressionData);
   const result = regression.linear(regressionData);
+  console.log(result);
   const gradient = result.equation[0];
   const yIntercept = result.equation[1];
 
