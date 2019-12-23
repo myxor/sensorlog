@@ -22,6 +22,7 @@ fs.readFile(__dirname + '/config.json', function(err, data) {
   }
 });
 
+var regression =require('regression');
 var sqlite3 = require('sqlite3').verbose();
 var express = require('express');
 var restapi = express();
@@ -433,12 +434,29 @@ restapi.get('/humidities', function(request, res) {
         result["stats"].push(o);
       });
 
+      var regression = calculateTrend(rows);
+      console.log(regression);
+
       res.contentType('application/json');
       res.send(JSON.stringify(result));
       db.close();
     }
   });
 });
+
+function calculateTrend(rows)
+{
+  var resultTrend = [];
+  var regressionData = [];
+  rows.forEach((row) => {
+    regressionData.push([regressionData.length, row.value]);
+  })
+  const result = regression.linear(regressionData);
+  const gradient = result.equation[0];
+  const yIntercept = result.equation[1];
+
+  return resultTrend;
+}
 
 var result2 = {
   "rows": []
