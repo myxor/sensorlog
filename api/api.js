@@ -455,7 +455,7 @@ function calculateRegressionGradient(rows)
       regressionData[row.sensor_id] = [];
     }
 
-    regressionData[row.sensor_id].push([regressionData.length, row.value]);
+    regressionData[row.sensor_id].push([regressionData[row.sensor_id].length, row.value]);
   });
   console.log(regressionData);
   Object.keys(regressionData).forEach(function (key) {
