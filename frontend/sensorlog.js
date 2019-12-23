@@ -65,8 +65,12 @@ function loadConfig() {
     config_json = results_current;
     if (config_json) {
       $("#page_title").text(config_json.page_title);
-      $("#temperature_title").text(config_json.temperature_title);
-      $("#humidity_title").text(config_json.humidity_title);
+      $('h1[name=temperature_title]').each(function (i, elem) {
+          $(elem).text(config_json.temperature_title);
+      });
+      $("h1[name=humidity_title]").each(function (i, elem) {
+          $(elem).text(config_json.humidity_title);
+      });
 
       if (config_json.show_humidity_pie_chart != "yes") {
         $("#humidity_pie_graph").remove();

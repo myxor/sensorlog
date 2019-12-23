@@ -19,41 +19,40 @@
 <body>
 
   <div class="row">
-     <a href="javascript:void(0)" onclick="openTab(event, 'Current');">
-       <div class="third tablink bottombar hover-light-grey padding">Current data</div>
-     </a>
-     <a href="javascript:void(0)" onclick="openTab(event, 'Graphs');">
-       <div class="third tablink bottombar hover-light-grey padding border-red">Graphs</div>
-     </a>
-     <a href="javascript:void(0)" onclick="openTab(event, 'Historic');">
-       <div class="third tablink bottombar hover-light-grey padding">Historic</div>
-     </a>
-   </div>
+    <a href="javascript:void(0)" onclick="openTab(event, 'Current');">
+      <div class="third tablink bottombar hover-light-grey padding">Current data</div>
+    </a>
+    <a href="javascript:void(0)" onclick="openTab(event, 'Graphs');">
+      <div class="third tablink bottombar hover-light-grey padding border-red">Graphs</div>
+    </a>
+    <a href="javascript:void(0)" onclick="openTab(event, 'Historic');">
+      <div class="third tablink bottombar hover-light-grey padding">Historic</div>
+    </a>
+  </div>
 
   <div id="Current" class="container tab" style="display:none">
     <h2>Current</h2>
     <p>TODO</p>
 
     <div class="card">
-      <h1 id="temperature_title">Temperature</h1>
+      <h1 name="temperature_title">Temperature</h1>
       <div id="temperature_current">
-        
+
       </div>
     </div>
-
   </div>
 
   <div id="Graphs" class="container tab">
     <h2>Graphs</h2>
     <div class="card">
-      <h1 id="temperature_title">Temperature</h1>
+      <h1 name="temperature_title">Temperature</h1>
       <div id="temperature_graph">
         <div class="loader" id="temperature_loader" style="visible: hidden"></div>
       </div>
     </div>
 
     <div class="card">
-      <h1 id="humidity_title">Humidity</h1>
+      <h1 name="humidity_title">Humidity</h1>
       <div id="humidity_graph">
         <div class="loader" id="humidity_loader" style="visible: hidden"></div>
       </div>
@@ -71,16 +70,16 @@
   <script>
     function openTab(evt, tabName) {
       var i, x, tablinks;
-     x = document.getElementsByClassName("tab");
-     for (i = 0; i < x.length; i++) {
-       x[i].style.display = "none";
-     }
-     tablinks = document.getElementsByClassName("tablink");
-     for (i = 0; i < x.length; i++) {
-       tablinks[i].className = tablinks[i].className.replace(" border-red", "");
-     }
-     document.getElementById(tabName).style.display = "block";
-     evt.currentTarget.firstElementChild.className += " border-red";
+      x = document.getElementsByClassName("tab");
+      for (i = 0; i < x.length; i++) {
+        x[i].style.display = "none";
+      }
+      tablinks = document.getElementsByClassName("tablink");
+      for (i = 0; i < x.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" border-red", "");
+      }
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.firstElementChild.className += " border-red";
     }
   </script>
 
