@@ -269,8 +269,9 @@ restapi.get('/temperatures', function(request, res) {
       });
 
       var regressionGradient = calculateRegressionGradient(rows);
-      console.log(regressionGradient);
-      //result["stats"].push({})
+      Object.keys(regressionGradient).forEach(function(k) {
+        result["stats"].push({"sensor_id":k, "regressionGradient": regressionGradient[k]})
+      });
 
       res.contentType('application/json');
       res.send(JSON.stringify(result));
@@ -457,9 +458,7 @@ function calculateRegressionGradient(rows)
 
     regressionData[row.sensor_id].push([regressionData[row.sensor_id].length, row.value]);
   });
-  console.log(regressionData);
   Object.keys(regressionData).forEach(function (key) {
-    console.log(regressionData[key]);
     const result = regression.linear(regressionData[key]);
     const gradient = result.equation[0];
     //const yIntercept = result.equation[1];
