@@ -20,16 +20,18 @@
 
 
   <div class="bar black">
-    <button class="bar-item button tablink red" onclick="openTab(event,'Current')">Current</button>
-    <button class="bar-item button tablink" onclick="openTab(event,'Graphs')">Graphs</button>
+    <button class="bar-item button tablink" onclick="openTab(event,'Current')">Current</button>
+    <button class="bar-item button tablink red" onclick="openTab(event,'Graphs')">Graphs</button>
+    <button class="bar-item button tablink" onclick="openTab(event,'Historic')">Historic</button>
   </div>
+  <br>
 
-  <div id="Current" class="container border tab">
+  <div id="Current" class="container border tab" style="display:none">
     <h2>Current</h2>
     <p>TODO</p>
   </div>
 
-  <div id="Graphs" class="container border tab" style="display:none">
+  <div id="Graphs" class="container border tab">
     <h2>Graphs</h2>
     <div class="card">
       <h1 id="temperature_title">Temperature</h1>
@@ -49,10 +51,15 @@
 
   </div>
 
+  <div id="Historic" class="container border tab" style="display:none">
+    <h2>Historic</h2>
+    <p>TODO</p>
+  </div>
+
   <script>
-    function openCity(evt, cityName) {
+    function openTab(evt, tabName) {
       var i, x, tablinks;
-      x = document.getElementsByClassName("city");
+      x = document.getElementsByClassName("tab");
       for (i = 0; i < x.length; i++) {
         x[i].style.display = "none";
       }
@@ -60,7 +67,7 @@
       for (i = 0; i < x.length; i++) {
         tablinks[i].className = tablinks[i].className.replace(" red", "");
       }
-      document.getElementById(cityName).style.display = "block";
+      document.getElementById(tabName).style.display = "block";
       evt.currentTarget.className += " red";
     }
   </script>
