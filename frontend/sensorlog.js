@@ -217,7 +217,6 @@ function loadTemperatures(from_ts, until_ts) {
           mode: 'lines+markers',
           name: "<b>" + row.name + ": " + getCurrentValueForSensor(row.sensor_id, "value") + "°C</b> " +
             "@" + formatDate(getCurrentValueForSensor(row.sensor_id, "datetime")) + " " +
-            generateGradientArrow(getStatValueForSensor(row.sensor_id, "regressionGradient")) + " " +
             "(avg: " + getStatValueForSensor(row.sensor_id, "avg") + ", " +
             "min: " + getStatValueForSensor(row.sensor_id, "min") + ", " +
             "max: " + getStatValueForSensor(row.sensor_id, "max") +
