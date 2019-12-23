@@ -287,6 +287,7 @@ restapi.get('/temperatures', function(request, res) {
 function findSensorInStatsArray(sensor_id, stats)
 {
   Object.keys(stats).forEach(function(k) {
+    console.log(sensor_id, k, stats[k]);
     if (stats[k]["sensor_id"] == sensor_id)
     {
       return stats[k];
