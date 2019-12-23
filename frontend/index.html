@@ -17,21 +17,53 @@
 </head>
 
 <body>
-  <div class="card">
-    <h1 id="temperature_title">Temperature</h1>
-    <div id="temperature_graph">
-      <div class="loader" id="temperature_loader" style="visible: hidden"></div>
-    </div>
+
+
+  <div class="bar black">
+    <button class="bar-item button tablink red" onclick="openTab(event,'Current')">Current</button>
+    <button class="bar-item button tablink" onclick="openTab(event,'Graphs')">Graphs</button>
   </div>
 
-  <div class="card">
-    <h1 id="humidity_title">Humidity</h1>
-    <div id="humidity_graph">
-      <div class="loader" id="humidity_loader" style="visible: hidden"></div>
-    </div>
+  <div id="Current" class="container border tab">
+    <h2>Current</h2>
+    <p>TODO</p>
   </div>
 
-  <div id="humidity_pie_graph" class="card-square "></div>
+  <div id="Graphs" class="container border tab" style="display:none">
+    <h2>Graphs</h2>
+    <div class="card">
+      <h1 id="temperature_title">Temperature</h1>
+      <div id="temperature_graph">
+        <div class="loader" id="temperature_loader" style="visible: hidden"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h1 id="humidity_title">Humidity</h1>
+      <div id="humidity_graph">
+        <div class="loader" id="humidity_loader" style="visible: hidden"></div>
+      </div>
+    </div>
+
+    <div id="humidity_pie_graph" class="card-square "></div>
+
+  </div>
+
+  <script>
+    function openCity(evt, cityName) {
+      var i, x, tablinks;
+      x = document.getElementsByClassName("city");
+      for (i = 0; i < x.length; i++) {
+        x[i].style.display = "none";
+      }
+      tablinks = document.getElementsByClassName("tablink");
+      for (i = 0; i < x.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" red", "");
+      }
+      document.getElementById(cityName).style.display = "block";
+      evt.currentTarget.className += " red";
+    }
+  </script>
 
   <div class="footer" id="footer">
     Made with <span class="heart">❤</span> in Paderborn
