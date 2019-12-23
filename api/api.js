@@ -270,7 +270,11 @@ restapi.get('/temperatures', function(request, res) {
 
       var regressionGradient = calculateRegressionGradient(rows);
       Object.keys(regressionGradient).forEach(function(k) {
-        result["stats"].push({"sensor_id":k, "regressionGradient": regressionGradient[k]})
+        var s = findSensorInStatsArray(k, result["stats"]);
+        if (s)
+        {
+          s["regressionGradient"] = regressionGradient[k];
+        }
       });
 
       res.contentType('application/json');
@@ -279,6 +283,16 @@ restapi.get('/temperatures', function(request, res) {
     }
   });
 });
+
+function findSensorInStatsArray(sensor_id, stats)
+{
+  Object.keys(stats).forEach(function(k) {
+    if (stats[k]["sensor_id"] == sensor_id)
+    {
+      return stats[k];
+    }
+  });
+}
 
 restapi.get('/humidities', function(request, res) {
   result = {
