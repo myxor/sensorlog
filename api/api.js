@@ -22,6 +22,7 @@ fs.readFile(__dirname + '/config.json', function(err, data) {
   }
 });
 
+var regression = require('regression');
 var sqlite3 = require('sqlite3').verbose();
 var express = require('express');
 var restapi = express();
@@ -213,6 +214,10 @@ restapi.get('/temperatures', function(request, res) {
           result["stats"].push(o);
         });
 
+        var regressionGradient = calculateRegressionGradient(rows);
+        Object.keys(regressionGradient).forEach(function(k) {
+          addStatToSensorStats(k, result["stats"], "regressionGradient", regressionGradient[k]);
+        });
 
         res.contentType('application/json');
         res.send(JSON.stringify(result));
@@ -265,6 +270,11 @@ restapi.get('/temperatures', function(request, res) {
         }
 
         result["stats"].push(o);
+      });
+
+      var regressionGradient = calculateRegressionGradient(rows);
+      Object.keys(regressionGradient).forEach(function(k) {
+        addStatToSensorStats(k, result["stats"], "regressionGradient", regressionGradient[k]);
       });
 
       res.contentType('application/json');
@@ -379,6 +389,11 @@ restapi.get('/humidities', function(request, res) {
           result["stats"].push(o);
         });
 
+        var regressionGradient = calculateRegressionGradient(rows);
+        Object.keys(regressionGradient).forEach(function(k) {
+          addStatToSensorStats(k, result["stats"], "regressionGradient", regressionGradient[k]);
+        });
+
 
         res.contentType('application/json');
         res.send(JSON.stringify(result));
@@ -433,12 +448,19 @@ restapi.get('/humidities', function(request, res) {
         result["stats"].push(o);
       });
 
+      var regressionGradient = calculateRegressionGradient(rows);
+      Object.keys(regressionGradient).forEach(function(k) {
+        addStatToSensorStats(k, result["stats"], "regressionGradient", regressionGradient[k]);
+      });
+
       res.contentType('application/json');
       res.send(JSON.stringify(result));
       db.close();
     }
   });
 });
+
+
 
 var result2 = {
   "rows": []
@@ -496,6 +518,35 @@ restapi.get('/humidities/current', function(request, res) {
   });
 })
 
+
+function addStatToSensorStats(sensor_id, stats_list, new_key, new_value) {
+  Object.keys(stats_list).forEach(function(k) {
+    if (stats_list[k]["sensor_id"] == sensor_id) {
+      stats_list[k][new_key] = new_value;
+    }
+  });
+}
+
+function calculateRegressionGradient(rows) {
+  var resultRegressionGradients = [];
+  var regressionData = [];
+  rows.forEach((row) => {
+    if (!regressionData[row.sensor_id]) {
+      regressionData[row.sensor_id] = [];
+    }
+
+    regressionData[row.sensor_id].push([regressionData[row.sensor_id].length, row.value]);
+  });
+  Object.keys(regressionData).forEach(function(key) {
+    const result = regression.linear(regressionData[key]);
+    const gradient = result.equation[0];
+    //const yIntercept = result.equation[1];
+    resultRegressionGradients[key] = gradient;
+  });
+
+
+  return resultRegressionGradients;
+}
 
 
 // ---------------------

@@ -109,6 +109,10 @@ function getStatValueForSensor(sensor_id, key) {
   return stat_row && stat_row[0] && stat_row[0][key] ? stat_row[0][key] : "";
 }
 
+function generateGradientArrow(gradient) {
+  return '<div class="arrow-right"></div>';
+}
+
 
 var layout = {
   showlegend: true,

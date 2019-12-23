@@ -63,3 +63,11 @@ h1 {
 .heart {
   color: #e25555;
 }
+
+.arrow-right {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 25px 0 25px 43.3px;
+  border-color: transparent transparent transparent #007bff;
+}
