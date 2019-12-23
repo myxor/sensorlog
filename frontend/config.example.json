@@ -3,6 +3,9 @@
   "page_title": "Sensorlog",
   "temperature_title": "Temperature",
   "humidity_title": "Humidity",
+  "current_data_title": "Current data",
+  "graphs_title": "Graphs",
+  "historic_title": "Historic",
   "show_humidity_pie_chart": "yes",
   "show_footer": "yes"
 }

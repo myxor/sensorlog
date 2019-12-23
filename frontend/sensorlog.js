@@ -72,6 +72,18 @@ function loadConfig() {
           $(elem).text(config_json.humidity_title);
       });
 
+      $("div[name=current_data_title]").each(function (i, elem) {
+          $(elem).html(config_json.current_data_title);
+      });
+
+      $("div[name=graphs_title]").each(function (i, elem) {
+          $(elem).html(config_json.graphs_title);
+      });
+
+      $("div[name=historic_title]").each(function (i, elem) {
+          $(elem).html(config_json.historic_title);
+      });
+
       if (config_json.show_humidity_pie_chart != "yes") {
         $("#humidity_pie_graph").remove();
       }
