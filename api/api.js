@@ -270,7 +270,7 @@ restapi.get('/temperatures', function(request, res) {
 
       var regressionGradient = calculateRegressionGradient(rows);
       Object.keys(regressionGradient).forEach(function(k) {
-        addStatToSensorStats(k, result["stats"], {"regressionGradient": regressionGradient[k]});
+        addStatToSensorStats(k, result["stats"], "regressionGradient", regressionGradient[k]);
       });
 
       res.contentType('application/json');
@@ -280,12 +280,12 @@ restapi.get('/temperatures', function(request, res) {
   });
 });
 
-function addStatToSensorStats(sensor_id, stats_list, new_stat)
+function addStatToSensorStats(sensor_id, stats_list, new_key, new_value)
 {
   Object.keys(stats_list).forEach(function(k) {
     if (stats_list[k]["sensor_id"] == sensor_id)
     {
-      stats_list[k].push(new_stat);
+      stats_list[k][new_key] = new_value;
     }
   });
 }
