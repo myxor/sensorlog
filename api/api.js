@@ -436,6 +436,7 @@ restapi.get('/humidities', function(request, res) {
 
       var regression = calculateTrend(rows);
       console.log(regression);
+      //result["stats"].push({})
 
       res.contentType('application/json');
       res.send(JSON.stringify(result));
@@ -448,16 +449,15 @@ function calculateTrend(rows)
 {
   var resultTrend = [];
   var regressionData = [];
+  // TODO: fix for multiple sensor_ids
   rows.forEach((row) => {
     regressionData.push([regressionData.length, row.value]);
   })
-  console.log(regressionData);
   const result = regression.linear(regressionData);
-  console.log(result);
   const gradient = result.equation[0];
   const yIntercept = result.equation[1];
 
-  return resultTrend;
+  return result;
 }
 
 var result2 = {
