@@ -450,6 +450,11 @@ function calculateRegressionGradient(rows)
   var resultRegressionGradients = [];
   var regressionData = [];
   rows.forEach((row) => {
+    if (!regressionData[row.sensor_id])
+    {
+      regressionData[row.sensor_id] = [];
+    }
+
     regressionData[row.sensor_id].push([regressionData.length, row.value]);
   });
   regressionData.forEach((row) => {
