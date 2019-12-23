@@ -72,14 +72,9 @@ h1 {
   border-color: transparent transparent transparent #007bff;
 }
 
-.container, .panel {
+.container {
   padding: 0.01em 16px;
   clear: both;
-}
-
-.panel {
-  margin-top: 16px;
-  margin-bottom: 16px
 }
 
 .third {
