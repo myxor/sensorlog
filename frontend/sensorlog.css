@@ -72,13 +72,24 @@ h1 {
   border-color: transparent transparent transparent #007bff;
 }
 
+.container, .panel {
+  padding: 0.01em 16px;
+  clear: both;
+}
+
+.panel {
+  margin-top: 16px;
+  margin-bottom: 16px
+}
+
 .bar .bar-item {
   padding: 8px 16px;
   float: left;
   width: auto;
   border: none;
   display: block;
-  outline: 0
+  outline: 0;
+  font-size: xx-large;
 }
 
 .bar .dropdown-hover, .bar .dropdown-click {
