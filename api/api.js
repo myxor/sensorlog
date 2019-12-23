@@ -457,6 +457,7 @@ function calculateRegressionGradient(rows)
 
     regressionData[row.sensor_id].push([regressionData.length, row.value]);
   });
+  console.log(regressionData);
   regressionData.forEach((row) => {
     console.log(row);
     const result = regression.linear(row);
