@@ -56,6 +56,20 @@ var selectorOptions = {
   }],
 };
 
+function openTab(evt, tabName) {
+  var i, x, tablinks;
+  x = document.getElementsByClassName("tab");
+  for (i = 0; i < x.length; i++) {
+    x[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablink");
+  for (i = 0; i < x.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" border-red", "");
+  }
+  document.getElementById(tabName).style.display = "block";
+  evt.currentTarget.firstElementChild.className += " border-red";
+}
+
 function loadConfig() {
   $.ajax({
     url: 'config.json',
@@ -65,23 +79,23 @@ function loadConfig() {
     config_json = results_current;
     if (config_json) {
       $("#page_title").text(config_json.page_title);
-      $('h1[name=temperature_title]').each(function (i, elem) {
-          $(elem).text(config_json.temperature_title);
+      $('h1[name=temperature_title]').each(function(i, elem) {
+        $(elem).text(config_json.temperature_title);
       });
-      $("h1[name=humidity_title]").each(function (i, elem) {
-          $(elem).text(config_json.humidity_title);
-      });
-
-      $("div[name=current_data_title]").each(function (i, elem) {
-          $(elem).html(config_json.current_data_title);
+      $("h1[name=humidity_title]").each(function(i, elem) {
+        $(elem).text(config_json.humidity_title);
       });
 
-      $("div[name=graphs_title]").each(function (i, elem) {
-          $(elem).html(config_json.graphs_title);
+      $("div[name=current_data_title]").each(function(i, elem) {
+        $(elem).html(config_json.current_data_title);
       });
 
-      $("div[name=historic_title]").each(function (i, elem) {
-          $(elem).html(config_json.historic_title);
+      $("div[name=graphs_title]").each(function(i, elem) {
+        $(elem).html(config_json.graphs_title);
+      });
+
+      $("div[name=historic_title]").each(function(i, elem) {
+        $(elem).html(config_json.historic_title);
       });
 
       if (config_json.show_humidity_pie_chart != "yes") {
