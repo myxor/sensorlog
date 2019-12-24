@@ -226,7 +226,7 @@ function loadTemperatures(from_ts, until_ts) {
   }).done(function(results_current) {
     current_values = results_current["rows"];
 
-    $('#temperature_current').html(generateCurrentValuesHtml(current_values));
+    $('#temperature_current').html(generateCurrentAndTrendValuesHtml(current_values, '°C'));
 
     getAllData();
   });
@@ -318,13 +318,14 @@ function loadTemperatures(from_ts, until_ts) {
 }
 
 
-function generateCurrentValuesHtml(current_values)
-{
+function generateCurrentAndTrendValuesHtml(current_values, unit) {
   var html = '';
   current_values.forEach(function(row) {
     html += '<h2>' + row.sensor_id + '</h2>' +
-            '<h3>' + row.value + '</h3>' +
-            '@' + formatDate(row.datetime);
+      '<h3>' + row.value + unit + '</h3>' +
+      '' + formatDate(row.datetime) + '<br>' +
+      '' + getStatValueForSensor(row.sensor_id, "regressionGradient")
+      '<hr>';
   });
   return html;
 }
@@ -363,7 +364,7 @@ function loadHumidities(from_ts, until_ts) {
   }).done(function(results_current) {
     current_values = results_current["rows"];
 
-    $('#humidity_current').html(generateCurrentValuesHtml(current_values));
+    $('#humidity_current').html(generateCurrentAndTrendValuesHtml(current_values, '%'));
 
     getAllData();
   });
