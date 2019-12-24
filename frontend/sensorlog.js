@@ -197,7 +197,7 @@ function buildParams(from_ts, until_ts) {
 function getNameForSensorId(sensor_id) {
   if (api_config_json && api_config_json.sensors) {
 
-    var config_sensor = api_config_json.sensor.filter(function(s) {
+    var config_sensor = api_config_json.sensors.filter(function(s) {
       return s.sensor_id == row.sensor_id;
     });
     if (config_sensor)
