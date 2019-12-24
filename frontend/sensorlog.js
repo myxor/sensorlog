@@ -198,7 +198,7 @@ function getNameForSensorId(sensor_id) {
   if (api_config_json && api_config_json.sensors) {
 
     var config_sensor = api_config_json.sensors.filter(function(s) {
-      return s.sensor_id == row.sensor_id;
+      return s.sensor_id == sensor_id;
     });
     if (config_sensor)
     {
