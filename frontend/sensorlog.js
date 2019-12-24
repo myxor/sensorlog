@@ -226,7 +226,7 @@ function loadTemperatures(from_ts, until_ts) {
   }).done(function(results_current) {
     current_values = results_current["rows"];
 
-    $('temperature_current').html(generateCurrentValuesHtml(current_values));
+    $('#temperature_current').html(generateCurrentValuesHtml(current_values));
 
     getAllData();
   });
@@ -363,7 +363,7 @@ function loadHumidities(from_ts, until_ts) {
   }).done(function(results_current) {
     current_values = results_current["rows"];
 
-    $('humidity_current').html(generateCurrentValuesHtml(current_values));
+    $('#humidity_current').html(generateCurrentValuesHtml(current_values));
 
     getAllData();
   });
