@@ -225,6 +225,9 @@ function loadTemperatures(from_ts, until_ts) {
     cache: false
   }).done(function(results_current) {
     current_values = results_current["rows"];
+
+    $('temperature_current').html(generateCurrentValuesHtml(current_values));
+
     getAllData();
   });
 
@@ -315,7 +318,16 @@ function loadTemperatures(from_ts, until_ts) {
 }
 
 
-
+function generateCurrentValuesHtml(current_values)
+{
+  var html = '';
+  current_values.forEach(function(row) {
+    html += '<h2>' + row.sensor_id + '</h2>' +
+            '<h3>' + row.value + '</h3>' +
+            '@' + formatDate(row.datetime);
+  });
+  return html;
+}
 
 
 
@@ -350,6 +362,8 @@ function loadHumidities(from_ts, until_ts) {
     cache: false
   }).done(function(results_current) {
     current_values = results_current["rows"];
+
+    $('humidity_current').html(generateCurrentValuesHtml(current_values));
 
     getAllData();
   });
