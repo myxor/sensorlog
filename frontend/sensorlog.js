@@ -331,7 +331,9 @@ function loadTemperatures(from_ts, until_ts) {
 function generateCurrentAndTrendValuesHtml(current_values, unit) {
   var html = '';
   current_values.forEach(function(row) {
-    html += '<h2>' + getNameForSensorId(row.sensor_id) + '</h2>' +
+    var sensor_name = getNameForSensorId(row.sensor_id);
+
+    html += '<h2>' + (sensor_name != '' ? sensor_name : row.sensor_id) + '</h2>' +
       '<h3>' + row.value + unit + '</h3>' +
       '' + formatDate(row.datetime) + '<br><br>';
 
