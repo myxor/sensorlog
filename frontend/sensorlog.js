@@ -226,8 +226,6 @@ function loadTemperatures(from_ts, until_ts) {
   }).done(function(results_current) {
     current_values = results_current["rows"];
 
-    $('#temperature_current').html(generateCurrentAndTrendValuesHtml(current_values, '°C'));
-
     getAllData();
   });
 
@@ -241,6 +239,8 @@ function loadTemperatures(from_ts, until_ts) {
       var data = []
 
       stats_values = results["stats"];
+
+      $('#temperature_current').html(generateCurrentAndTrendValuesHtml(current_values, '°C'));
 
       data_rows.forEach(function(row) {
         data.push({
@@ -364,8 +364,6 @@ function loadHumidities(from_ts, until_ts) {
   }).done(function(results_current) {
     current_values = results_current["rows"];
 
-    $('#humidity_current').html(generateCurrentAndTrendValuesHtml(current_values, '%'));
-
     getAllData();
   });
 
@@ -379,6 +377,9 @@ function loadHumidities(from_ts, until_ts) {
       var data = []
 
       stats_values = results["stats"];
+
+
+      $('#humidity_current').html(generateCurrentAndTrendValuesHtml(current_values, '%'));
 
 
       data_rows.forEach(function(row) {
