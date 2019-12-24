@@ -323,9 +323,14 @@ function generateCurrentAndTrendValuesHtml(current_values, unit) {
   current_values.forEach(function(row) {
     html += '<h2>' + row.sensor_id + '</h2>' +
       '<h3>' + row.value + unit + '</h3>' +
-      '' + formatDate(row.datetime) + '<br><br>' +
-      'Trend: ' + getStatValueForSensor(row.sensor_id, "regressionGradient")
-      '<hr>';
+      '' + formatDate(row.datetime) + '<br><br>';
+
+    var regressionGradient = getStatValueForSensor(row.sensor_id, "regressionGradient");
+    if (regressionGradient != '') {
+      html += 'Trend: ' + regressionGradient; // TODO: show arrow
+    }
+
+    html += '<hr>';
   });
   return html;
 }
