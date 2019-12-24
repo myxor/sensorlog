@@ -196,11 +196,14 @@ function buildParams(from_ts, until_ts) {
 
 function getNameForSensorId(sensor_id) {
   if (api_config_json && api_config_json.sensors) {
-    api_config_json.sensors.forEach(function(config_sensor) {
-      if (config_sensor.sensor_id == sensor_id) {
-        return config_sensor.name;
-      }
+
+    var config_sensor = api_config_json.sensor.filter(function(s) {
+      return s.sensor_id == row.sensor_id;
     });
+    if (config_sensor)
+    {
+        return config_sensor.name;
+    }
   }
 }
 
