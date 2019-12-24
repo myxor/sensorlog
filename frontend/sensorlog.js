@@ -1,6 +1,7 @@
 var api_url = '';
 var minus24h = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
-var config_json;
+var config_json = null;
+var api_config_json = null;
 
 var selectorOptions = {
   buttons: [{
@@ -193,295 +194,303 @@ function buildParams(from_ts, until_ts) {
   return params;
 }
 
-
-function loadTemperatures(from_ts, until_ts) {
-  var loader = document.getElementById('temperature_loader');
-  loader.style.visibility = "visible";
-
-  var params = buildParams(from_ts, until_ts);
-
-  var data_rows = []
-
-  // get config from API:
-  var api_config_json = null;
-  $.ajax({
-    url: api_url + '/config',
-    dataType: 'json',
-    cache: false
-  }).done(function(results_current) {
-    api_config_json = results_current;
-    if (api_config_json && api_config_json.sensors) {
-      api_config_json.sensors.forEach(function(config_sensor) {
-        if (config_sensor.type.indexOf("temperature") > -1) {
-          data_rows.push(config_sensor);
-        }
-      });
-    }
-  });
-
-  $.ajax({
-    url: api_url + '/temperatures/current?',
-    dataType: 'json',
-    cache: false
-  }).done(function(results_current) {
-    current_values = results_current["rows"];
-
-    getAllData();
-  });
-
-  function getAllData() {
-    $.ajax({
-      url: api_url + '/temperatures?' + params,
-      dataType: 'json',
-      cache: false
-    }).done(function(results) {
-
-      var data = []
-
-      stats_values = results["stats"];
-
-      $('#temperature_current').html(generateCurrentAndTrendValuesHtml(current_values, '°C'));
-
-      data_rows.forEach(function(row) {
-        data.push({
-          sensor_id: row.sensor_id,
-          x: [],
-          y: [],
-          mode: 'lines+markers',
-          name: "<b>" + row.name + ": " + getCurrentValueForSensor(row.sensor_id, "value") + "°C</b> " +
-            "@" + formatDate(getCurrentValueForSensor(row.sensor_id, "datetime")) + " " +
-            "(avg: " + getStatValueForSensor(row.sensor_id, "avg") + ", " +
-            "min: " + getStatValueForSensor(row.sensor_id, "min") + ", " +
-            "max: " + getStatValueForSensor(row.sensor_id, "max") +
-            ")",
-          marker: {
-            color: row.color,
-            size: 4,
-            line: {
-              color: 'white',
-              width: 1
-            }
-          }
-        });
-      });
-
-      layout.yaxis.title = '°C';
-
-      function pushRecordToData(row) {
-        var d_string = row.datetime;
-        var d = new Date(d_string);
-        var v = parseFloat(row.value);
-
-        var data_row = data.filter(function(r) {
-          return r.sensor_id == row.sensor_id;
-        });
-
-        if (!data_row) {
-          data_row = data[data.length - 1];
-        } else {
-          data_row = data_row[0];
-        }
-
-        if (data_row && data_row.x && data_row.y) {
-          data_row.x.push(d);
-          data_row.y.push(v);
-        }
-      }
-
-      results["rows"].forEach(function(row) {
-        pushRecordToData(row);
-      });
-
-
-      // draw graph:
-      var tempDiv = document.getElementById('temperature_graph');
-
-      var gd = Plotly.newPlot('temperature_graph', data, layout, {
-        responsive: true,
-        locale: 'de'
-      });
-
-      tempDiv.on('plotly_relayout', function(event) {
-        if (event) {
-          var from_ts = event["xaxis.range[0]"];
-          if (!from_ts) {
-            from_ts = minus24h.toISOString();
-          }
-          var until_ts = event["xaxis.range[1]"];
-          loadTemperatures(from_ts, until_ts);
-        }
-      });
-
-      loader.style.visibility = "hidden";
-    });
-  }
-}
-
-
-function generateCurrentAndTrendValuesHtml(current_values, unit) {
-  var html = '';
-  current_values.forEach(function(row) {
-    html += '<h2>' + row.sensor_id + '</h2>' +
-      '<h3>' + row.value + unit + '</h3>' +
-      '' + formatDate(row.datetime) + '<br><br>';
-
-    var regressionGradient = getStatValueForSensor(row.sensor_id, "regressionGradient");
-    if (regressionGradient != '') {
-      html += 'Trend: ' + regressionGradient; // TODO: show arrow
-    }
-
-    html += '<hr>';
-  });
-  return html;
-}
-
-
-
-function loadHumidities(from_ts, until_ts) {
-  var loader = document.getElementById('humidity_loader');
-  loader.style.visibility = "visible";
-
-  var params = buildParams(from_ts, until_ts);
-
-  var data_rows = []
-
-  // get config from API:
-  var api_config_json = null;
-  $.ajax({
-    url: api_url + '/config',
-    dataType: 'json',
-    cache: false
-  }).done(function(results_current) {
-    api_config_json = results_current;
-    if (api_config_json && api_config_json.sensors) {
-      api_config_json.sensors.forEach(function(config_sensor) {
-        if (config_sensor.type.indexOf("humidity") > -1) {
-          data_rows.push(config_sensor);
-        }
-      });
-    }
-  });
-
-  $.ajax({
-    url: api_url + '/humidities/current?',
-    dataType: 'json',
-    cache: false
-  }).done(function(results_current) {
-    current_values = results_current["rows"];
-
-    getAllData();
-  });
-
-  function getAllData() {
-    $.ajax({
-      url: api_url + '/humidities?' + params,
-      dataType: 'json',
-      cache: false
-    }).done(function(results) {
-
-      var data = []
-
-      stats_values = results["stats"];
-
-
-      $('#humidity_current').html(generateCurrentAndTrendValuesHtml(current_values, '%'));
-
-
-      data_rows.forEach(function(row) {
-        data.push({
-          sensor_id: row.sensor_id,
-          x: [],
-          y: [],
-          mode: 'lines+markers',
-          name: "<b>" + row.name + ": " + getCurrentValueForSensor(row.sensor_id, "value") + "%</b> " +
-            "@" + formatDate(getCurrentValueForSensor(row.sensor_id, "datetime")) + " " +
-            "(avg: " + getStatValueForSensor(row.sensor_id, "avg") + ", " +
-            "min: " + getStatValueForSensor(row.sensor_id, "min") + ", " +
-            "max: " + getStatValueForSensor(row.sensor_id, "max") +
-            ")",
-          marker: {
-            color: row.color,
-            size: 4,
-            line: {
-              color: 'white',
-              width: 1
-            }
-          }
-        });
-      });
-
-      layout.yaxis.title = '%';
-
-      function pushRecordToData(row) {
-        var d_string = row.datetime;
-        var d = new Date(d_string);
-        var v = parseFloat(row.value);
-
-        var data_row = data.filter(function(r) {
-          return r.sensor_id == row.sensor_id;
-        });
-
-        if (!data_row) {
-          data_row = data[data.length - 1];
-        } else {
-          data_row = data_row[0];
-        }
-
-        if (data_row && data_row.x && data_row.y) {
-          data_row.x.push(d);
-          data_row.y.push(v);
-        }
-      }
-
-      results["rows"].forEach(function(row) {
-        pushRecordToData(row);
-      });
-
-
-      // draw graph:
-      var humiDiv = document.getElementById('humidity_graph');
-
-      var gd = Plotly.newPlot('humidity_graph', data, layout, {
-        responsive: true,
-        locale: 'de'
-      });
-
-      humiDiv.on('plotly_relayout', function(event) {
-        if (event) {
-          var from_ts = event["xaxis.range[0]"];
-          if (!from_ts) {
-            from_ts = minus24h.toISOString();
-          }
-          var until_ts = event["xaxis.range[1]"];
-          loadHumidities(from_ts, until_ts);
-        }
-      });
-
-      loader.style.visibility = "hidden";
-
-
-
-
-
-      // Pie chart:
-      if (config_json.show_humidity_pie_chart == "yes") {
-        var humiPieChartData = [{
-          values: [current_values[0].value, 100 - current_values[0].value],
-          labels: [config_json.humidity_title],
-          type: 'pie',
-          textinfo: "label+percent",
-          textposition: "outside",
-          automargin: true,
-          showlegend: false
-        }];
-
-        Plotly.newPlot('humidity_pie_graph', humiPieChartData, {
-          height: 400,
-          width: 400
-        });
+function getNameForSensorId(sensor_id) {
+  if (api_config_json && api_config_json.sensors) {
+    api_config_json.sensors.forEach(function(config_sensor) {
+      if (config_sensor.sensor_id == sensor_id) {
+        return config_sensor.name;
       }
     });
   }
-}
 
-loadConfig();
+
+  function loadTemperatures(from_ts, until_ts) {
+    var loader = document.getElementById('temperature_loader');
+    loader.style.visibility = "visible";
+
+    var params = buildParams(from_ts, until_ts);
+
+    var data_rows = []
+
+    // get config from API:
+    $.ajax({
+      url: api_url + '/config',
+      dataType: 'json',
+      cache: false
+    }).done(function(results_current) {
+      api_config_json = results_current;
+      if (api_config_json && api_config_json.sensors) {
+        api_config_json.sensors.forEach(function(config_sensor) {
+          if (config_sensor.type.indexOf("temperature") > -1) {
+            data_rows.push(config_sensor);
+          }
+        });
+      }
+    });
+
+    $.ajax({
+      url: api_url + '/temperatures/current?',
+      dataType: 'json',
+      cache: false
+    }).done(function(results_current) {
+      current_values = results_current["rows"];
+
+      getAllData();
+    });
+
+    function getAllData() {
+      $.ajax({
+        url: api_url + '/temperatures?' + params,
+        dataType: 'json',
+        cache: false
+      }).done(function(results) {
+
+        var data = []
+
+        stats_values = results["stats"];
+
+        $('#temperature_current').html(generateCurrentAndTrendValuesHtml(current_values, '°C'));
+
+        data_rows.forEach(function(row) {
+          data.push({
+            sensor_id: row.sensor_id,
+            x: [],
+            y: [],
+            mode: 'lines+markers',
+            name: "<b>" + row.name + ": " + getCurrentValueForSensor(row.sensor_id, "value") + "°C</b> " +
+              "@" + formatDate(getCurrentValueForSensor(row.sensor_id, "datetime")) + " " +
+              "(avg: " + getStatValueForSensor(row.sensor_id, "avg") + ", " +
+              "min: " + getStatValueForSensor(row.sensor_id, "min") + ", " +
+              "max: " + getStatValueForSensor(row.sensor_id, "max") +
+              ")",
+            marker: {
+              color: row.color,
+              size: 4,
+              line: {
+                color: 'white',
+                width: 1
+              }
+            }
+          });
+        });
+
+        layout.yaxis.title = '°C';
+
+        function pushRecordToData(row) {
+          var d_string = row.datetime;
+          var d = new Date(d_string);
+          var v = parseFloat(row.value);
+
+          var data_row = data.filter(function(r) {
+            return r.sensor_id == row.sensor_id;
+          });
+
+          if (!data_row) {
+            data_row = data[data.length - 1];
+          } else {
+            data_row = data_row[0];
+          }
+
+          if (data_row && data_row.x && data_row.y) {
+            data_row.x.push(d);
+            data_row.y.push(v);
+          }
+        }
+
+        results["rows"].forEach(function(row) {
+          pushRecordToData(row);
+        });
+
+
+        // draw graph:
+        var tempDiv = document.getElementById('temperature_graph');
+
+        var gd = Plotly.newPlot('temperature_graph', data, layout, {
+          responsive: true,
+          locale: 'de'
+        });
+
+        tempDiv.on('plotly_relayout', function(event) {
+          if (event) {
+            var from_ts = event["xaxis.range[0]"];
+            if (!from_ts) {
+              from_ts = minus24h.toISOString();
+            }
+            var until_ts = event["xaxis.range[1]"];
+            loadTemperatures(from_ts, until_ts);
+          }
+        });
+
+        loader.style.visibility = "hidden";
+      });
+    }
+  }
+
+
+  function generateCurrentAndTrendValuesHtml(current_values, unit) {
+    var html = '';
+    current_values.forEach(function(row) {
+      html += '<h2>' + getNameForSensorId(row.sensor_id) + '</h2>' +
+        '<h3>' + row.value + unit + '</h3>' +
+        '' + formatDate(row.datetime) + '<br><br>';
+
+      var regressionGradient = getStatValueForSensor(row.sensor_id, "regressionGradient");
+      if (regressionGradient != '') {
+        html += 'Trend: ' + regressionGradient; // TODO: show arrow
+      }
+
+      html += '<hr>';
+    });
+    return html;
+  }
+
+
+
+  function loadHumidities(from_ts, until_ts) {
+    var loader = document.getElementById('humidity_loader');
+    loader.style.visibility = "visible";
+
+    var params = buildParams(from_ts, until_ts);
+
+    var data_rows = []
+
+    // get config from API:
+    var api_config_json = null;
+    $.ajax({
+      url: api_url + '/config',
+      dataType: 'json',
+      cache: false
+    }).done(function(results_current) {
+      api_config_json = results_current;
+      if (api_config_json && api_config_json.sensors) {
+        api_config_json.sensors.forEach(function(config_sensor) {
+          if (config_sensor.type.indexOf("humidity") > -1) {
+            data_rows.push(config_sensor);
+          }
+        });
+      }
+    });
+
+    $.ajax({
+      url: api_url + '/humidities/current?',
+      dataType: 'json',
+      cache: false
+    }).done(function(results_current) {
+      current_values = results_current["rows"];
+
+      getAllData();
+    });
+
+    function getAllData() {
+      $.ajax({
+        url: api_url + '/humidities?' + params,
+        dataType: 'json',
+        cache: false
+      }).done(function(results) {
+
+        var data = []
+
+        stats_values = results["stats"];
+
+
+        $('#humidity_current').html(generateCurrentAndTrendValuesHtml(current_values, '%'));
+
+
+        data_rows.forEach(function(row) {
+          data.push({
+            sensor_id: row.sensor_id,
+            x: [],
+            y: [],
+            mode: 'lines+markers',
+            name: "<b>" + row.name + ": " + getCurrentValueForSensor(row.sensor_id, "value") + "%</b> " +
+              "@" + formatDate(getCurrentValueForSensor(row.sensor_id, "datetime")) + " " +
+              "(avg: " + getStatValueForSensor(row.sensor_id, "avg") + ", " +
+              "min: " + getStatValueForSensor(row.sensor_id, "min") + ", " +
+              "max: " + getStatValueForSensor(row.sensor_id, "max") +
+              ")",
+            marker: {
+              color: row.color,
+              size: 4,
+              line: {
+                color: 'white',
+                width: 1
+              }
+            }
+          });
+        });
+
+        layout.yaxis.title = '%';
+
+        function pushRecordToData(row) {
+          var d_string = row.datetime;
+          var d = new Date(d_string);
+          var v = parseFloat(row.value);
+
+          var data_row = data.filter(function(r) {
+            return r.sensor_id == row.sensor_id;
+          });
+
+          if (!data_row) {
+            data_row = data[data.length - 1];
+          } else {
+            data_row = data_row[0];
+          }
+
+          if (data_row && data_row.x && data_row.y) {
+            data_row.x.push(d);
+            data_row.y.push(v);
+          }
+        }
+
+        results["rows"].forEach(function(row) {
+          pushRecordToData(row);
+        });
+
+
+        // draw graph:
+        var humiDiv = document.getElementById('humidity_graph');
+
+        var gd = Plotly.newPlot('humidity_graph', data, layout, {
+          responsive: true,
+          locale: 'de'
+        });
+
+        humiDiv.on('plotly_relayout', function(event) {
+          if (event) {
+            var from_ts = event["xaxis.range[0]"];
+            if (!from_ts) {
+              from_ts = minus24h.toISOString();
+            }
+            var until_ts = event["xaxis.range[1]"];
+            loadHumidities(from_ts, until_ts);
+          }
+        });
+
+        loader.style.visibility = "hidden";
+
+
+
+
+
+        // Pie chart:
+        if (config_json.show_humidity_pie_chart == "yes") {
+          var humiPieChartData = [{
+            values: [current_values[0].value, 100 - current_values[0].value],
+            labels: [config_json.humidity_title],
+            type: 'pie',
+            textinfo: "label+percent",
+            textposition: "outside",
+            automargin: true,
+            showlegend: false
+          }];
+
+          Plotly.newPlot('humidity_pie_graph', humiPieChartData, {
+            height: 400,
+            width: 400
+          });
+        }
+      });
+    }
+  }
+
+  loadConfig();
