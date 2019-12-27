@@ -354,7 +354,7 @@ function generateCurrentAndTrendValuesHtml(current_values, unit) {
   current_values.forEach(function(row) {
     var sensor_name = getNameForSensorId(row.sensor_id);
 
-    html += '<span';
+    html += '<div class="card"';
 
     var age = (new Date().getTime() - new Date(row.datetime).getTime());
     if (age / 1000 > 3600) // 1 hour
@@ -373,7 +373,7 @@ function generateCurrentAndTrendValuesHtml(current_values, unit) {
       html += 'Trend: ' + regressionGradient; // TODO: show arrow
     }
 
-    html += '</span><hr>';
+    html += '</div><hr>';
   });
   return html;
 }
