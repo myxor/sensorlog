@@ -356,7 +356,7 @@ function generateCurrentAndTrendValuesHtml(current_values, unit) {
 
     html += '<span';
 
-    var age = (new Date().getTime() - new Date().getTime(row.datetime));
+    var age = (new Date().getTime() - new Date(row.datetime).getTime());
     if (age / 1000 > 3600) // 1 hour
     {
        html += ' style="background-color: lightgrey"';
