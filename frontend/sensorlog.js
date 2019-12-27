@@ -172,10 +172,10 @@ function generateGradientArrow(gradient) {
   var degree = '0';
   if (gradient < 0) {
     color_class = 'arrow-red';
-    degree = '-30';
+    degree = '30';
   } else if (gradient > 0) {
     color_class = 'arrow-green';
-    degree = '30';
+    degree = '-30';
   } else {
     color_class = 'arrow-blue';
     degree = '0';
