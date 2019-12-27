@@ -20,7 +20,7 @@
 
   <div class="row">
     <a href="javascript:void(0)" onclick="openTab(event, 'Current');">
-      <div class="third tablink bottombar hover-light-grey padding" name="current_data_title">Current data</div>
+      <div class="third tablink bottombar hover-light-grey padding" name="current_data_title" data-name="Current">Current data</div>
     </a>
     <a href="javascript:void(0)" onclick="openTab(event, 'Graphs');">
       <div class="third tablink bottombar hover-light-grey padding border-red" name="graphs_title">Graphs</div>
@@ -66,6 +66,13 @@
   <div id="Historic" class="container tab" style="display:none">
     <p>TODO</p>
   </div>
+
+  <script>
+  if(window.location.hash) {
+      var hash = window.location.hash.substring(1);
+      openTab(event, hash);
+  }
+  </script>
 
   <div class="footer" id="footer">
     Made with <span class="heart">❤</span> in Paderborn

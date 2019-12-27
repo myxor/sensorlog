@@ -67,8 +67,20 @@ function openTab(evt, tabName) {
   for (i = 0; i < x.length; i++) {
     tablinks[i].className = tablinks[i].className.replace(" border-red", "");
   }
-  document.getElementById(tabName).style.display = "block";
-  evt.currentTarget.firstElementChild.className += " border-red";
+  var elem = document.getElementById(tabName);
+  if (elem) {
+    elem.style.display = "block";
+  }
+  if (evt) {
+    if (evt.currentTarget) {
+      evt.currentTarget.firstElementChild.className += " border-red";
+    }
+  } else {
+    var e = document.querySelector('[data-name="' + tabName + '"]');
+    if (e) {
+      e.className += " border-red";
+    }
+  }
 }
 
 function loadConfig() {
@@ -200,9 +212,8 @@ function getNameForSensorId(sensor_id) {
     var config_sensor = api_config_json.sensors.filter(function(s) {
       return s.sensor_id == sensor_id;
     });
-    if (config_sensor && config_sensor[0])
-    {
-        return config_sensor[0].name;
+    if (config_sensor && config_sensor[0]) {
+      return config_sensor[0].name;
     }
   }
 }
