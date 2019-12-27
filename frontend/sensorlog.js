@@ -11,6 +11,11 @@ var selectorOptions = {
     label: '1 Stunde'
   }, {
     step: 'hour',
+    stepmode: 'backward',
+    count: 3,
+    label: '3 Stunde'
+  }, {
+    step: 'hour',
     stepmode: 'todate',
     count: 6,
     label: '6 Stunden'
@@ -354,7 +359,7 @@ function generateCurrentAndTrendValuesHtml(current_values, unit) {
   current_values.forEach(function(row) {
     var sensor_name = getNameForSensorId(row.sensor_id);
 
-    html += '<div class="card"';
+    html += '<div class="card-small"';
 
     var age = (new Date().getTime() - new Date(row.datetime).getTime());
     if (age / 1000 > 3600) // 1 hour
@@ -373,7 +378,7 @@ function generateCurrentAndTrendValuesHtml(current_values, unit) {
       html += 'Trend: ' + regressionGradient; // TODO: show arrow
     }
 
-    html += '</div><hr>';
+    html += '</div>';
   });
   return html;
 }
