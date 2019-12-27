@@ -65,12 +65,14 @@ function openTab(evt, tabName) {
   }
   tablinks = document.getElementsByClassName("tablink");
   for (i = 0; i < x.length; i++) {
+    // Remove red border from tabs
     tablinks[i].className = tablinks[i].className.replace(" border-red", "");
   }
   var elem = document.getElementById(tabName);
   if (elem) {
     elem.style.display = "block";
   }
+  // Add red border to active tab:
   if (evt) {
     if (evt.currentTarget) {
       evt.currentTarget.firstElementChild.className += " border-red";
@@ -81,6 +83,11 @@ function openTab(evt, tabName) {
       e.className += " border-red";
     }
   }
+
+  // Add hash to URL and scroll to top:
+  var scrollPos = $(document).scrollTop();
+  window.location.hash = tabName;
+  $(document).scrollTop(scrollPos);
 }
 
 function loadConfig() {
