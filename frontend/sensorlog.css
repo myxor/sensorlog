@@ -80,7 +80,18 @@ h1 {
   height: 0;
   border-style: solid;
   border-width: 25px 0 25px 43.3px;
-  border-color: transparent transparent transparent #007bff;
+}
+
+.arrow-blue {
+    border-color: transparent transparent transparent #3F51B5;
+}
+
+.arrow-green {
+    border-color: transparent transparent transparent #4CAF50;
+}
+
+.arrow-red {
+    border-color: transparent transparent transparent #f44336;
 }
 
 .container {

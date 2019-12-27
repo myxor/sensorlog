@@ -167,7 +167,14 @@ function getStatValueForSensor(sensor_id, key) {
 function generateGradientArrow(gradient) {
   // Gradient is between -1 and 1, let's convert it to values between -45 and 45:
   var degree = gradient * 45;
-  return '<div class="arrow-right" style="transform: rotate(' + degree + 'deg);"></div>';
+  if (gradient < 0) {
+    color_class = 'arrow-red';
+  } else if (gradient > 0) {
+    color_class = 'arrow-green';
+  } else {
+    color_class = 'arrow-blue';
+  }
+  return '<div class="arrow-right ' + color_class + '" style="transform: rotate(' + degree + 'deg);"></div>';
 }
 
 
@@ -366,7 +373,7 @@ function generateCurrentAndTrendValuesHtml(current_values, unit) {
     var age = (new Date().getTime() - new Date(row.datetime).getTime());
     if (age / 1000 > 3600) // 1 hour
     {
-       html += ' style="background-color: lightgrey"';
+      html += ' style="background-color: lightgrey"';
     }
     html += '>';
 
