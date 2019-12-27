@@ -165,7 +165,9 @@ function getStatValueForSensor(sensor_id, key) {
 }
 
 function generateGradientArrow(gradient) {
-  return '<div class="arrow-right"></div>';
+  // Gradient is between -1 and 1, let's convert it to values between -45 and 45:
+  var degree = gradient * 45;
+  return '<div class="arrow-right" style="transform: rotate(' + degree + 'deg);"></div>';
 }
 
 
@@ -371,13 +373,11 @@ function generateCurrentAndTrendValuesHtml(current_values, unit) {
     html += '<h2>' + (sensor_name != '' ? sensor_name : row.sensor_id) + '</h2>' +
       '<h3>' + row.value + unit + '</h3>' +
       '' + formatDate(row.datetime) + '<br><br>';
-      // TODO: grey out old data (new Date(datestring))
 
     var regressionGradient = getStatValueForSensor(row.sensor_id, "regressionGradient");
-    if (regressionGradient != '') {
-      html += 'Trend: ' + regressionGradient; // TODO: show arrow
-    }
-
+    html += 'Trend: ' + regressionGradient;
+    // Show arrow:
+    html += generateGradientArrow(regressionGradient);
     html += '</div>';
   });
   return html;
