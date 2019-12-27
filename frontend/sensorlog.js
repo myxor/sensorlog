@@ -167,13 +167,18 @@ function getStatValueForSensor(sensor_id, key) {
 function generateGradientArrow(gradient) {
   // Gradient is between -1 and 1, let's convert it to values between -45 and 45:
   // Additionally we need to switch orientation of the arrow:
-  var degree = (-1) * gradient * 45;
+  //var degree = (-1) * gradient * 45;
+  var color_class = '';
+  var degree = '0';
   if (gradient < 0) {
     color_class = 'arrow-red';
+    degree = '-30';
   } else if (gradient > 0) {
     color_class = 'arrow-green';
+    degree = '30';
   } else {
     color_class = 'arrow-blue';
+    degree = '0';
   }
   return '<div class="arrow-right ' + color_class + '" style="transform: rotate(' + degree + 'deg);"></div>';
 }
