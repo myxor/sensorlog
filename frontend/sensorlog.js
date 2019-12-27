@@ -354,16 +354,26 @@ function generateCurrentAndTrendValuesHtml(current_values, unit) {
   current_values.forEach(function(row) {
     var sensor_name = getNameForSensorId(row.sensor_id);
 
+    html += '<span';
+
+    var age = (new Date().getTime() - new Date().getTime(row.datetime));
+    if (age / 1000 > 3600) // 1 hour
+    {
+       html += ' style="background-color: lightgrey"';
+    }
+    html += '>';
+
     html += '<h2>' + (sensor_name != '' ? sensor_name : row.sensor_id) + '</h2>' +
       '<h3>' + row.value + unit + '</h3>' +
       '' + formatDate(row.datetime) + '<br><br>';
+      // TODO: grey out old data (new Date(datestring))
 
     var regressionGradient = getStatValueForSensor(row.sensor_id, "regressionGradient");
     if (regressionGradient != '') {
       html += 'Trend: ' + regressionGradient; // TODO: show arrow
     }
 
-    html += '<hr>';
+    html += '</span><hr>';
   });
   return html;
 }
