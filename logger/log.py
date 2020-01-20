@@ -40,12 +40,10 @@ try:
     mqtt_host = config['MQTT']['HOST']
     mqtt_port = int(config['MQTT']['PORT'])
     mqtt_topic = config['MQTT']['TOPIC']
+    mqtt_client_id = config['MQTT']['CLIENT_ID']
 except KeyError as e:
     print("Error: Required field in config.ini missing: " + str(e))
     exit()
-
-
-
 
 def create_db_tables():
     global db_connection, db_handle
@@ -78,12 +76,17 @@ elif log_type == "mqtt":
     if mqtt_topic == "":
         print("Error: MQTT.TOPIC not set in config.ini")
         exit()
+
+    if mqtt_client_id == "":
+        import uuid
+        mqtt_client_id = "sensorlog_" + str(uuid.uuid4())
+
     import paho.mqtt.client as mqtt
 
     def on_connect(client, userdata, flags, rc):
         print("Connected with result code " + str(rc))
 
-    mqtt_client = mqtt.Client(client_id="sensorlog")
+    mqtt_client = mqtt.Client(client_id=mqtt_client_id)
     mqtt_client.on_connect = on_connect
     mqtt_client.connect(mqtt_host, mqtt_port, 60)
 else:
