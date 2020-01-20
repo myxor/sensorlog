@@ -17,37 +17,34 @@ import configparser
 import importlib
 from importlib import util
 
+if len(sys.argv) < 2:
+    print("Usage: python3 log.py (sqlite|restful|mqtt)")
+    exit()
+
+log_type = sys.argv[1]  # "sqlite", "restful" or "mqtt"
+
 config = configparser.ConfigParser()
 config.read('config.ini')
 
 db_path = ""
 api_host = ""
 api_port = ""
+mqtt_host = ""
+mqtt_port = ""
+mqtt_topic = ""
 
 try:
     db_path = config['DB']['PATH']
     api_host = config['API']['HOST']
-    api_port = config['API']['PORT']
+    api_port = int(config['API']['PORT'])
+    mqtt_host = config['MQTT']['HOST']
+    mqtt_port = int(config['MQTT']['PORT'])
+    mqtt_topic = config['MQTT']['TOPIC']
 except KeyError:
     print("Error: Required field in config.ini missing.")
     exit()
 
-if db_path == "":
-    print("Error: DB.PATH not set in config.ini")
-    exit()
-if api_host == "":
-    print("Error: API.HOST not set in config.ini")
-    exit()
-if api_port == "":
-    print("Error: API.PORT not set in config.ini")
-    exit()
 
-if len(sys.argv) < 2:
-    print("Usage: python3 log.py (sqlite|restful)")
-    exit()
-
-db_connection = sqlite3.connect(db_path)
-db_handle = db_connection.cursor()
 
 
 def create_db_tables():
@@ -55,18 +52,43 @@ def create_db_tables():
     db_handle.execute('''CREATE TABLE IF NOT EXISTS temperatures(datetime text, sensor_id text, value real)''')
     db_handle.execute('''CREATE TABLE IF NOT EXISTS humidities(datetime text, sensor_id text, value real)''')
 
-
-log_type = sys.argv[1]  # "sqlite" or "restful"
+db_connection = sqlite3.connect(db_path)
+db_handle = db_connection.cursor()
+create_db_tables()
 
 if log_type == "sqlite":
-    create_db_tables()
+    if db_path == "":
+        print("Error: DB.PATH not set in config.ini")
+        exit()
 elif log_type == "restful":
-    create_db_tables()
+    if api_host == "":
+        print("Error: API.HOST not set in config.ini")
+        exit()
+    if api_port == "":
+        print("Error: API.PORT not set in config.ini")
+        exit()
     url = "http://" + api_host + ":" + api_port + "/"
-else:
-    print("Usage: python3 log.py (sqlite|restful)")
-    exit()
+elif log_type == "mqtt":
+    if mqtt_host == "":
+        print("Error: MQTT.HOST not set in config.ini")
+        exit()
+    if mqtt_port == "":
+        print("Error: MQTT.PORT not set in config.ini")
+        exit()
+    if mqtt_topic == "":
+        print("Error: MQTT.TOPIC not set in config.ini")
+        exit()
+    import paho.mqtt.client as mqtt
 
+    def on_connect(client, userdata, flags, rc):
+        print("Connected with result code " + str(rc))
+
+    mqtt_client = mqtt.Client()
+    mqtt_client.on_connect = on_connect
+    mqtt_client.connect(mqtt_host, mqtt_port, 60)
+else:
+    print("Usage: python3 log.py (sqlite|restful|mqtt)")
+    exit()
 
 def get1wire():
     # get all w1 slaves:
@@ -147,21 +169,27 @@ def send_to_rest(path, t):
                     delete_record_from_db(path, r)
 
         return True
-
     except requests.exceptions.RequestException as e:
         insert_record_into_db(path, t)
         print(e)
         return False
 
 
+def send_via_mqtt(path, t):
+    full_topic = mqtt_topic + "/" + path + "/" + t[1]
+    mqtt_client.publish(full_topic, t[2])
+
+
 def log_value(table, t):
     if log_type == "sqlite":
         # write into DB:
         insert_record_into_db(table, t)
-
-    if log_type == "restful":
+    elif log_type == "restful":
         # send to REST API:
         send_to_rest(table, t)
+    elif log_type == "mqtt":
+        # send viq MQTT:
+        send_via_mqtt(table, t)
 
 
 def log_temperature(sensor_id, temperature):
@@ -204,3 +232,5 @@ if log_type == "sqlite":
     if db_connection:
         db_connection.commit()
         db_connection.close()
+elif log_type == "mqtt":
+    mqtt_client.disconnect()

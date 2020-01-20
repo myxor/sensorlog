@@ -18,12 +18,11 @@ It consists out of three parts:
 This script does the actual reading of the temperature and humidity values from the supported sensors.
 It will scan all 1wire slaves and extract the temperature from DS18B20 sensors (maybe other sensors will work as well).
 It will look for DHT22 sensors as well and retrieve temperature and humitidy values from them.
-Depending on the configuration it is able to log these values into a sqlite database or send them to the RESTful API.
+Depending on the configuration it is able to log these values directly into a sqlite database, send them to the included RESTful API or send them via MQTT.
 
 When sending to the RESTful API is not possible (e.g. in case of no network connection or API down) the records will be cached locally in a sqlite database and sent when API is reachable again.
 
-
-For accessing DHT22 sensors we are using [Adafruit_Python_DHT](https://github.com/adafruit/Adafruit_Python_DHT).
+For accessing DHT22 sensors we are using [Adafruit_Python_DHT](https://github.com/adafruit/Adafruit_Python_DHT) and MQTT is done is with [Eclipse Paho](https://www.eclipse.org/paho/).
 
 ### RESTful API
 
@@ -35,7 +34,7 @@ Built with [jquery](https://github.com/jquery/jquery/) and [plotly.js](https://g
 
 
 
-## Get it running
+## Get it running 🍕
 
 ### On the server (where the RESTful API and frontend should be running)
 
@@ -108,6 +107,13 @@ You can run the logger on your clients by crontab:
 The following example will log sensor values every 10 minutes:
 
 ```*/10 * * * * /usr/bin/python3 ~/sensorlog/logger/log.py restful```
+
+
+## Technology stack
+* Python3 for the data logger
+* Node for the RESTful API
+* jQuery, CSS, HTML for the frontend
+* SQLite for the database
 
 
 # License
