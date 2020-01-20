@@ -1,6 +1,7 @@
 var api_url = '';
 var minus24h = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
-var config_json;
+var config_json = null;
+var api_config_json = null;
 
 var selectorOptions = {
   buttons: [{
@@ -8,6 +9,11 @@ var selectorOptions = {
     stepmode: 'backward',
     count: 1,
     label: '1 Stunde'
+  }, {
+    step: 'hour',
+    stepmode: 'backward',
+    count: 3,
+    label: '3 Stunde'
   }, {
     step: 'hour',
     stepmode: 'todate',
@@ -56,6 +62,39 @@ var selectorOptions = {
   }],
 };
 
+function openTab(evt, tabName) {
+  var i, x, tablinks;
+  x = document.getElementsByClassName("tab");
+  for (i = 0; i < x.length; i++) {
+    x[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablink");
+  for (i = 0; i < x.length; i++) {
+    // Remove red border from tabs
+    tablinks[i].className = tablinks[i].className.replace(" border-red", "");
+  }
+  var elem = document.getElementById(tabName);
+  if (elem) {
+    elem.style.display = "block";
+  }
+  // Add red border to active tab:
+  if (evt) {
+    if (evt.currentTarget) {
+      evt.currentTarget.firstElementChild.className += " border-red";
+    }
+  } else {
+    var e = document.querySelector('[data-name="' + tabName + '"]');
+    if (e) {
+      e.className += " border-red";
+    }
+  }
+
+  // Add hash to URL and scroll to top:
+  var scrollPos = $(document).scrollTop();
+  window.location.hash = tabName;
+  $(document).scrollTop(scrollPos);
+}
+
 function loadConfig() {
   $.ajax({
     url: 'config.json',
@@ -65,8 +104,24 @@ function loadConfig() {
     config_json = results_current;
     if (config_json) {
       $("#page_title").text(config_json.page_title);
-      $("#temperature_title").text(config_json.temperature_title);
-      $("#humidity_title").text(config_json.humidity_title);
+      $('h1[name=temperature_title]').each(function(i, elem) {
+        $(elem).text(config_json.temperature_title);
+      });
+      $("h1[name=humidity_title]").each(function(i, elem) {
+        $(elem).text(config_json.humidity_title);
+      });
+
+      $("div[name=current_data_title]").each(function(i, elem) {
+        $(elem).html(config_json.current_data_title);
+      });
+
+      $("div[name=graphs_title]").each(function(i, elem) {
+        $(elem).html(config_json.graphs_title);
+      });
+
+      $("div[name=historic_title]").each(function(i, elem) {
+        $(elem).html(config_json.historic_title);
+      });
 
       if (config_json.show_humidity_pie_chart != "yes") {
         $("#humidity_pie_graph").remove();
@@ -110,7 +165,22 @@ function getStatValueForSensor(sensor_id, key) {
 }
 
 function generateGradientArrow(gradient) {
-  return '<div class="arrow-right"></div>';
+  // Gradient is between -1 and 1, let's convert it to values between -45 and 45:
+  // Additionally we need to switch orientation of the arrow:
+  //var degree = (-1) * gradient * 45;
+  var color_class = '';
+  var degree = '0';
+  if (gradient < 0) {
+    color_class = 'arrow-red';
+    degree = '30';
+  } else if (gradient > 0) {
+    color_class = 'arrow-green';
+    degree = '-30';
+  } else {
+    color_class = 'arrow-blue';
+    degree = '0';
+  }
+  return '<div class="arrow-right ' + color_class + '" style="transform: rotate(' + degree + 'deg);"></div>';
 }
 
 
@@ -163,6 +233,18 @@ function buildParams(from_ts, until_ts) {
   return params;
 }
 
+function getNameForSensorId(sensor_id) {
+  if (api_config_json && api_config_json.sensors) {
+
+    var config_sensor = api_config_json.sensors.filter(function(s) {
+      return s.sensor_id == sensor_id;
+    });
+    if (config_sensor && config_sensor[0]) {
+      return config_sensor[0].name;
+    }
+  }
+}
+
 
 function loadTemperatures(from_ts, until_ts) {
   var loader = document.getElementById('temperature_loader');
@@ -173,7 +255,6 @@ function loadTemperatures(from_ts, until_ts) {
   var data_rows = []
 
   // get config from API:
-  var api_config_json = null;
   $.ajax({
     url: api_url + '/config',
     dataType: 'json',
@@ -195,6 +276,7 @@ function loadTemperatures(from_ts, until_ts) {
     cache: false
   }).done(function(results_current) {
     current_values = results_current["rows"];
+
     getAllData();
   });
 
@@ -208,6 +290,8 @@ function loadTemperatures(from_ts, until_ts) {
       var data = []
 
       stats_values = results["stats"];
+
+      $('#temperature_current').html(generateCurrentAndTrendValuesHtml(current_values, '°C'));
 
       data_rows.forEach(function(row) {
         data.push({
@@ -285,7 +369,32 @@ function loadTemperatures(from_ts, until_ts) {
 }
 
 
+function generateCurrentAndTrendValuesHtml(current_values, unit) {
+  var html = '';
+  current_values.forEach(function(row) {
+    var sensor_name = getNameForSensorId(row.sensor_id);
 
+    html += '<div class="card-small"';
+
+    var age = (new Date().getTime() - new Date(row.datetime).getTime());
+    if (age / 1000 > 3600) // 1 hour
+    {
+      html += ' style="background-color: lightgrey"';
+    }
+    html += '>';
+
+    html += '<h2>' + (sensor_name != '' ? sensor_name : row.sensor_id) + '</h2>' +
+      '<h3>' + row.value + unit + '</h3>' +
+      '' + formatDate(row.datetime) + '<br><br>';
+
+    var regressionGradient = getStatValueForSensor(row.sensor_id, "regressionGradient");
+    html += 'Trend: ' + regressionGradient;
+    // Show arrow:
+    html += generateGradientArrow(regressionGradient);
+    html += '</div>';
+  });
+  return html;
+}
 
 
 
@@ -334,6 +443,9 @@ function loadHumidities(from_ts, until_ts) {
       var data = []
 
       stats_values = results["stats"];
+
+
+      $('#humidity_current').html(generateCurrentAndTrendValuesHtml(current_values, '%'));
 
 
       data_rows.forEach(function(row) {

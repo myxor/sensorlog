@@ -539,8 +539,12 @@ function calculateRegressionGradient(rows) {
   });
   Object.keys(regressionData).forEach(function(key) {
     const result = regression.linear(regressionData[key]);
-    const gradient = result.equation[0];
+    var gradient = result.equation[0];
     //const yIntercept = result.equation[1];
+    if (gradient == '')
+    {
+      gradient = 0;
+    }
     resultRegressionGradients[key] = gradient;
   });
 

@@ -44,6 +44,17 @@ h1 {
   padding: 10px;
 }
 
+.card-small {
+  background: #fff;
+  border-radius: 2px;
+  display: inline-block;
+  margin: 1rem;
+  position: relative;
+  width: 95%;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+  padding: 10px;
+}
+
 .card-square {
   background: #fff;
   border-radius: 2px;
@@ -68,6 +79,48 @@ h1 {
   width: 0;
   height: 0;
   border-style: solid;
-  border-width: 25px 0 25px 43.3px;
-  border-color: transparent transparent transparent #007bff;
+  border-width: 15px 0 15px 40px;
+}
+
+.arrow-blue {
+    border-color: transparent transparent transparent #3F51B5;
+}
+
+.arrow-green {
+    border-color: transparent transparent transparent #4CAF50;
+}
+
+.arrow-red {
+    border-color: transparent transparent transparent #f44336;
+}
+
+.container {
+  padding: 0.01em 16px;
+  clear: both;
+}
+
+.third {
+  float: left;
+  width: 100%;
+  padding: 8px 16px !important;
+}
+
+@media (min-width:601px) {
+  .third {
+    width: 30%
+  }
+}
+
+.bottombar {
+  border-bottom: 6px solid #ccc !important;
+  font-size: x-large;
+}
+
+.border-red {
+  border-color: #f44336 !important;
+}
+
+.light-grey, .hover-light-grey:hover, .light-gray, .hover-light-gray:hover {
+  color: #000 !important;
+  background-color: #f1f1f1 !important
 }
