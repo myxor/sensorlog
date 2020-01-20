@@ -40,8 +40,8 @@ try:
     mqtt_host = config['MQTT']['HOST']
     mqtt_port = int(config['MQTT']['PORT'])
     mqtt_topic = config['MQTT']['TOPIC']
-except KeyError:
-    print("Error: Required field in config.ini missing.")
+except KeyError as e:
+    print("Error: Required field in config.ini missing: " + str(e))
     exit()
 
 
@@ -83,7 +83,7 @@ elif log_type == "mqtt":
     def on_connect(client, userdata, flags, rc):
         print("Connected with result code " + str(rc))
 
-    mqtt_client = mqtt.Client()
+    mqtt_client = mqtt.Client(client_id="sensorlog")
     mqtt_client.on_connect = on_connect
     mqtt_client.connect(mqtt_host, mqtt_port, 60)
 else:
@@ -176,7 +176,8 @@ def send_to_rest(path, t):
 
 
 def send_via_mqtt(path, t):
-    full_topic = mqtt_topic + "/" + path + "/" + t[1]
+    sensor_id = t[1]
+    full_topic = mqtt_topic + "/" + path + "/" + sensor_id
     mqtt_client.publish(full_topic, t[2])
 
 
@@ -188,7 +189,7 @@ def log_value(table, t):
         # send to REST API:
         send_to_rest(table, t)
     elif log_type == "mqtt":
-        # send viq MQTT:
+        # send via MQTT:
         send_via_mqtt(table, t)
 
 
@@ -200,7 +201,7 @@ def log_temperature(sensor_id, temperature):
 
 
 def log_humidity(sensor_id, humidity):
-    print("log_humidity(" + sensor_id + ", " + humidity + ")")
+    print("log_humidity(" + sensor_id + ", " + str(humidity) + ")")
     now = datetime.now(timezone.utc)
     t = (now.isoformat(), str(sensor_id), str(humidity),)
     log_value("humidities", t)
