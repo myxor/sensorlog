@@ -17,21 +17,62 @@
 </head>
 
 <body>
-  <div class="card">
-    <h1 id="temperature_title">Temperature</h1>
-    <div id="temperature_graph">
-      <div class="loader" id="temperature_loader" style="visible: hidden"></div>
+
+  <div class="row">
+    <a href="javascript:void(0)" onclick="openTab(event, 'Current');">
+      <div class="third tablink bottombar hover-light-grey padding" name="current_data_title" data-name="Current">Current data</div>
+    </a>
+    <a href="javascript:void(0)" onclick="openTab(event, 'Graphs');">
+      <div class="third tablink bottombar hover-light-grey padding border-red" name="graphs_title">Graphs</div>
+    </a>
+    <a href="javascript:void(0)" onclick="openTab(event, 'Historic');">
+      <div class="third tablink bottombar hover-light-grey padding" name="historic_title">Historic</div>
+    </a>
+  </div>
+
+  <div id="Current" class="container tab" style="display:none">
+    <div class="card">
+      <h1 name="temperature_title">Temperature</h1>
+      <div id="temperature_current">
+      </div>
+    </div>
+
+    <div class="card">
+      <h1 name="humidity_title">Humidity</h1>
+      <div id="humidity_current">
+      </div>
     </div>
   </div>
 
-  <div class="card">
-    <h1 id="humidity_title">Humidity</h1>
-    <div id="humidity_graph">
-      <div class="loader" id="humidity_loader" style="visible: hidden"></div>
+  <div id="Graphs" class="container tab">
+    <div class="card">
+      <h1 name="temperature_title">Temperature</h1>
+      <div id="temperature_graph">
+        <div class="loader" id="temperature_loader" style="visible: hidden"></div>
+      </div>
     </div>
+
+    <div class="card">
+      <h1 name="humidity_title">Humidity</h1>
+      <div id="humidity_graph">
+        <div class="loader" id="humidity_loader" style="visible: hidden"></div>
+      </div>
+    </div>
+
+    <div id="humidity_pie_graph" class="card-square "></div>
+
   </div>
 
-  <div id="humidity_pie_graph" class="card-square "></div>
+  <div id="Historic" class="container tab" style="display:none">
+    <p>TODO</p>
+  </div>
+
+  <script>
+    if (window.location.hash) {
+      var hash = window.location.hash.substring(1);
+      openTab(event, hash);
+    }
+  </script>
 
   <div class="footer" id="footer">
     Made with <span class="heart">❤</span> in Paderborn
