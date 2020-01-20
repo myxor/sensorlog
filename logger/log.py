@@ -65,7 +65,7 @@ elif log_type == "restful":
     if api_port == "":
         print("Error: API.PORT not set in config.ini")
         exit()
-    url = "http://" + api_host + ":" + api_port + "/"
+    url = "http://" + api_host + ":" + str(api_port) + "/"
 elif log_type == "mqtt":
     if mqtt_host == "":
         print("Error: MQTT.HOST not set in config.ini")
