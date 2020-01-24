@@ -99,15 +99,17 @@ sudo systemctl start sensorlog-api
 
 ```
 
-
 ## Periodic logging of temperatures and humidities
 
 You can run the logger on your clients by crontab:
 
-The following example will log sensor values every 10 minutes:
+The following example will log sensor values every 10 minutes via rest request:
 
 ```*/10 * * * * /usr/bin/python3 ~/sensorlog/logger/log.py restful```
 
+## home-assistant compatible
+
+When sending the data via MQTT this project can be used together with [home-assistant](https://github.com/home-assistant/home-assistant).
 
 ## Technology stack
 * Python3 for the data logger

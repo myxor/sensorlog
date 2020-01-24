@@ -16,6 +16,7 @@ import os.path
 import configparser
 import importlib
 from importlib import util
+import time
 
 if len(sys.argv) < 2:
     print("Usage: python3 log.py (sqlite|restful|mqtt)")
@@ -219,6 +220,7 @@ def get_dht22_values():
     print(sensor_id + ": humidity=" + str(humidity) + "%, temperature=" + str(temperature) + "°C")
     if humidity is not None and humidity <= 100:
         log_humidity(sensor_id, str(round(humidity, 3)))
+        time.sleep(2)
     if temperature is not None:
         log_temperature(sensor_id, str(round(temperature, 3)))
 
