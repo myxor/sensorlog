@@ -116,7 +116,7 @@ def get1wire():
 
                 print(str(w1_slave) + ': temperature=' + str(temperature))
 
-                log_temperature(str(w1_slave), str(temperature))
+                log_temperature(str(w1_slave), temperature)
 
     else:
         print("No 1wire support")
