@@ -214,7 +214,7 @@ def log_humidity(sensor_id, humidity):
         return
     print("log_humidity(" + sensor_id + ", " + str(humidity) + ")")
     now = datetime.now(timezone.utc)
-    t = (now.isoformat(), str(sensor_id), str(humidity),)
+    t = (now.isoformat(), str(sensor_id), str(humidity))
     log_value("humidities", t)
 
 
@@ -226,9 +226,9 @@ def get_dht22_values():
     sensor_id = "DHT" + str(sensor) + str(pin)
     print(sensor_id + ": humidity=" + str(humidity) + "%, temperature=" + str(temperature) + "°C")
     if humidity is not None:
-        log_humidity(sensor_id, str(round(humidity, 3)))
+        log_humidity(sensor_id, round(humidity, 3))
     if temperature is not None:
-        log_temperature(sensor_id, str(round(temperature, 3)))
+        log_temperature(sensor_id, round(temperature, 3))
 
 
 get1wire()
