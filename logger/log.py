@@ -183,7 +183,7 @@ def send_via_mqtt(path, t):
     sensor_id = t[1]
     full_topic = mqtt_topic + "/" + path + "/" + sensor_id
     time.sleep(0.5)
-    mqtt_client.publish(full_topic, t[2])
+    mqtt_client.publish(full_topic, t[2], qos=0, retain=True)
 
 
 def log_value(table, t):
