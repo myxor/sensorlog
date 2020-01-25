@@ -182,6 +182,7 @@ def send_to_rest(path, t):
 def send_via_mqtt(path, t):
     sensor_id = t[1]
     full_topic = mqtt_topic + "/" + path + "/" + sensor_id
+    time.sleep(0.5)
     mqtt_client.publish(full_topic, t[2])
 
 
@@ -198,6 +199,9 @@ def log_value(table, t):
 
 
 def log_temperature(sensor_id, temperature):
+    if temperature > 80:
+        print("temperature to high %d; not logging." % temperature)
+        return
     print("log_temperature(" + sensor_id + ", " + str(temperature) + ")")
     now = datetime.now(timezone.utc)
     t = (now.isoformat(), str(sensor_id), str(temperature))
@@ -205,6 +209,9 @@ def log_temperature(sensor_id, temperature):
 
 
 def log_humidity(sensor_id, humidity):
+    if humidity > 100:
+        print("humidity to high %d; not logging." % humidity)
+        return
     print("log_humidity(" + sensor_id + ", " + str(humidity) + ")")
     now = datetime.now(timezone.utc)
     t = (now.isoformat(), str(sensor_id), str(humidity),)
@@ -218,9 +225,8 @@ def get_dht22_values():
     humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
     sensor_id = "DHT" + str(sensor) + str(pin)
     print(sensor_id + ": humidity=" + str(humidity) + "%, temperature=" + str(temperature) + "°C")
-    if humidity is not None and humidity <= 100:
+    if humidity is not None:
         log_humidity(sensor_id, str(round(humidity, 3)))
-        time.sleep(2)
     if temperature is not None:
         log_temperature(sensor_id, str(round(temperature, 3)))
 
